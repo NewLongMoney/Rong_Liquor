@@ -10,6 +10,8 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
     <link rel="stylesheet" href="styles/main.css" />
+    <!-- Replace YOUR_API_KEY with your Google Maps API key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
     <title>Rong Liquor | Nairobi Hip-Hop Delivery</title>
   </head>
   <body>
@@ -127,6 +129,79 @@
       </section>
 
       <section id="about" class="section crew">
+        <div class="section-heading">
+          <h2>The Wakadinali Crew</h2>
+          <p>Meet the artists behind Rong Rendé and the Rong Liquor movement.</p>
+        </div>
+        
+        <div class="crew-grid">
+          <article class="crew-card">
+            <div class="crew-image">
+              <img 
+                src="https://instagram.com/api/v1/users/web_profile_info/?username=scar_mkadinali"
+                alt="Scar Mkadinali"
+                loading="lazy"
+                onerror="loadInstagramProfilePic(this, 'scar_mkadinali')"
+              />
+            </div>
+            <div class="crew-info">
+              <h3>Scar Mkadinali</h3>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p>One of the founding members of Wakadinali, bringing Gengetone vibes to the liquor game.</p>
+              <a href="https://www.instagram.com/scar_mkadinali/" target="_blank" rel="noopener" class="crew-link">
+                <span>@scar_mkadinali</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="crew-card">
+            <div class="crew-image">
+              <img 
+                src="https://instagram.com/api/v1/users/web_profile_info/?username=sewersydaa"
+                alt="Sewersydaa"
+                loading="lazy"
+                onerror="loadInstagramProfilePic(this, 'sewersydaa')"
+              />
+            </div>
+            <div class="crew-info">
+              <h3>Sewersydaa</h3>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p>Wakadinali member driving the Rong Rendé culture and community connection.</p>
+              <a href="https://www.instagram.com/sewersydaa/" target="_blank" rel="noopener" class="crew-link">
+                <span>@sewersydaa</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="crew-card">
+            <div class="crew-image">
+              <img 
+                src="https://instagram.com/api/v1/users/web_profile_info/?username=munga_domani"
+                alt="Munga Domani"
+                loading="lazy"
+                onerror="loadInstagramProfilePic(this, 'munga_domani')"
+              />
+            </div>
+            <div class="crew-info">
+              <h3>Munga Domani</h3>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p>Wakadinali member bringing the authentic Nairobi sound to the brand.</p>
+              <a href="https://www.instagram.com/munga_domani/" target="_blank" rel="noopener" class="crew-link">
+                <span>@munga_domani</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+        </div>
+
         <div class="timeline">
           <article>
             <h3>2018 • Lyrics to Lifestyle</h3>
@@ -180,21 +255,17 @@
           <article class="vibe-card">
             <h3>Mix & Mic</h3>
             <p>Craft a Rong Spritz while Scar spits his verse.</p>
-            <button class="link-btn">Read recipe →</button>
+            <a href="https://www.instagram.com/the_rongliquor/" target="_blank" rel="noopener" class="link-btn">View on Instagram →</a>
           </article>
           <article class="vibe-card">
             <h3>Rong Rendé Playlist</h3>
-            <p>Spotify embeds synced with vibe-matched bottles.</p>
-            <iframe
-              src="https://open.spotify.com/embed/playlist/37i9dQZF1DX0hWmn8d0s5Q?utm_source=generator"
-              loading="lazy"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            ></iframe>
+            <p>Wakadinali tracks synced with vibe-matched bottles.</p>
+            <a href="https://www.youtube.com/watch?v=HkwjQm9fZJs" target="_blank" rel="noopener" class="link-btn">Watch on YouTube →</a>
           </article>
           <article class="vibe-card">
             <h3>UGC Cypher</h3>
             <p>Tag @the_rongliquor to unlock exclusives.</p>
-            <button class="link-btn">Submit content →</button>
+            <a href="https://www.instagram.com/the_rongliquor/" target="_blank" rel="noopener" class="link-btn">Follow & Tag →</a>
           </article>
         </div>
       </section>

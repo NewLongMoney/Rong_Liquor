@@ -23,8 +23,8 @@ const zones = [
     fill: "#c91517",
     stroke: "#ff5f1f",
     short: "CBD",
-    cx: 150,
-    cy: 90,
+    lat: -1.2921,
+    lng: 36.8219,
   },
   {
     id: "east",
@@ -34,8 +34,8 @@ const zones = [
     fill: "#00d4ff",
     stroke: "#21ff8c",
     short: "EAS",
-    cx: 240,
-    cy: 150,
+    lat: -1.2833,
+    lng: 36.8667,
   },
   {
     id: "west",
@@ -45,8 +45,8 @@ const zones = [
     fill: "#ff1f7a",
     stroke: "#c91517",
     short: "WST",
-    cx: 90,
-    cy: 160,
+    lat: -1.2631,
+    lng: 36.8000,
   },
 ];
 
@@ -133,10 +133,43 @@ const attachHandlers = () => {
     alert(message);
   });
 
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      const href = this.getAttribute("href");
+      if (href === "#" || href === "") return;
+      
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+        
+        // Close mobile menu if open
+        if (navList?.classList.contains("open")) {
+          navList.classList.remove("open");
+          navToggle?.setAttribute("aria-expanded", "false");
+        }
+      }
+    });
+  });
+
   navToggle?.addEventListener("click", () => {
     const expanded = navToggle.getAttribute("aria-expanded") === "true";
     navToggle.setAttribute("aria-expanded", String(!expanded));
     navList?.classList.toggle("open");
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (navList?.classList.contains("open") && 
+        !navList.contains(e.target) && 
+        !navToggle?.contains(e.target)) {
+      navList.classList.remove("open");
+      navToggle?.setAttribute("aria-expanded", "false");
+    }
   });
 
   confirmAge?.addEventListener("click", () => {
@@ -157,58 +190,118 @@ const initAgeGate = () => {
   }
 };
 
-const renderCoverageMap = () => {
-  const map = document.getElementById("map");
-  if (!map) return;
-  const routePath =
-    "M40 190 C80 140, 140 120, 190 140 S300 210, 320 160";
-  const svgMarkup = `
-    <svg viewBox="0 0 360 240" role="img" aria-label="Rong Liquor delivery coverage">
-      <defs>
-        <linearGradient id="cityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#f8f9fa"/>
-          <stop offset="100%" stop-color="#e9ecef"/>
-        </linearGradient>
-        <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#c91517"/>
-          <stop offset="100%" stop-color="#ff1f7a"/>
-        </linearGradient>
-      </defs>
-      <rect width="360" height="240" fill="url(#cityGradient)"/>
-      <path d="${routePath}" stroke="url(#routeGradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.7" stroke-dasharray="6 8"/>
-      ${zones
-        .map(
-          (zone) => `
-        <g data-zone="${zone.id}" class="zone-group">
-          <circle class="zone-circle" cx="${zone.cx}" cy="${zone.cy}" r="28" fill="${zone.fill}" stroke="${zone.stroke}" stroke-width="4" />
-          <text x="${zone.cx}" y="${zone.cy + 5}" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#fff" font-weight="700">${zone.short}</text>
-        </g>
-      `
-        )
-        .join("")}
-    </svg>
-  `;
-  map.innerHTML = svgMarkup;
+let googleMap = null;
+let mapMarkers = [];
 
-  const setActiveZone = (zoneId) => {
-    activeZoneId = zoneId;
-    const zone = zones.find((z) => z.id === zoneId);
-    if (!zone) return;
-    map.querySelectorAll(".zone-circle").forEach((node) => node.classList.remove("active"));
-    const activeCircle = map.querySelector(`[data-zone="${zoneId}"] .zone-circle`);
-    activeCircle?.classList.add("active");
-    zoneListItems.forEach((item) =>
-      item.classList.toggle("active", item.dataset.zone === zoneId)
-    );
-    if (zoneEta) {
-      zoneEta.textContent = `${zone.label}: ${zone.eta} • ${zone.note}`;
-    }
-  };
+const setActiveZone = (zoneId) => {
+  activeZoneId = zoneId;
+  const zone = zones.find((z) => z.id === zoneId);
+  if (!zone || !googleMap) return;
 
-  map.querySelectorAll("[data-zone]").forEach((group) => {
-    group.addEventListener("click", () => setActiveZone(group.dataset.zone));
+  // Update marker styles
+  mapMarkers.forEach((marker) => {
+    const isActive = marker.zoneId === zoneId;
+    const zoneData = zones.find((z) => z.id === marker.zoneId);
+    marker.setIcon({
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: isActive ? 16 : 12,
+      fillColor: zoneData.fill,
+      fillOpacity: 1,
+      strokeColor: zoneData.stroke,
+      strokeWeight: isActive ? 4 : 3
+    });
   });
 
+  // Center map on selected zone
+  googleMap.setCenter({ lat: zone.lat, lng: zone.lng });
+  googleMap.setZoom(13);
+
+  // Update zone list items
+  zoneListItems.forEach((item) =>
+    item.classList.toggle("active", item.dataset.zone === zoneId)
+  );
+
+  if (zoneEta) {
+    zoneEta.textContent = `${zone.label}: ${zone.eta} • ${zone.note}`;
+  }
+};
+
+const renderCoverageMap = () => {
+  const mapContainer = document.getElementById("map");
+  if (!mapContainer) return;
+
+  // Check if Google Maps is loaded
+  if (typeof google === "undefined" || !google.maps) {
+    console.error("Google Maps API not loaded");
+    mapContainer.innerHTML = "<p>Map loading...</p>";
+    return;
+  }
+
+  // Initialize Google Map centered on Nairobi
+  const nairobiCenter = { lat: -1.2921, lng: 36.8219 };
+  
+  googleMap = new google.maps.Map(mapContainer, {
+    center: nairobiCenter,
+    zoom: 12,
+    styles: [
+      {
+        featureType: "all",
+        elementType: "geometry",
+        stylers: [{ color: "#0f1115" }]
+      },
+      {
+        featureType: "water",
+        elementType: "geometry",
+        stylers: [{ color: "#1a1d24" }]
+      },
+      {
+        featureType: "road",
+        elementType: "geometry",
+        stylers: [{ color: "#2a2d35" }]
+      },
+      {
+        featureType: "poi",
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      }
+    ],
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: true
+  });
+
+  // Create markers for each zone
+  zones.forEach((zone) => {
+    const marker = new google.maps.Marker({
+      position: { lat: zone.lat, lng: zone.lng },
+      map: googleMap,
+      title: zone.label,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 12,
+        fillColor: zone.fill,
+        fillOpacity: 1,
+        strokeColor: zone.stroke,
+        strokeWeight: 3
+      },
+      label: {
+        text: zone.short,
+        color: "#fff",
+        fontSize: "11px",
+        fontWeight: "bold"
+      },
+      zoneId: zone.id
+    });
+
+    // Add click listener to marker
+    marker.addListener("click", () => {
+      setActiveZone(zone.id);
+    });
+
+    mapMarkers.push(marker);
+  });
+
+  // Add click listeners to zone list items
   zoneListItems.forEach((item) => {
     item.addEventListener("click", () => setActiveZone(item.dataset.zone));
   });
@@ -243,9 +336,74 @@ const registerServiceWorker = async () => {
   }
 };
 
+// Load Instagram profile picture using API
+window.loadInstagramProfilePic = async function(img, username) {
+  try {
+    // Use Instagram's web profile API (may require authentication in some cases)
+    const apiUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${username}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+    
+    const response = await fetch(proxyUrl);
+    const data = await response.json();
+    
+    if (data.contents) {
+      const profileData = JSON.parse(data.contents);
+      if (profileData?.data?.user?.profile_pic_url_hd) {
+        img.src = profileData.data.user.profile_pic_url_hd;
+        return;
+      }
+      if (profileData?.data?.user?.profile_pic_url) {
+        img.src = profileData.data.user.profile_pic_url;
+        return;
+      }
+    }
+    
+    // Fallback: Try to get from Instagram page HTML
+    const pageUrl = `https://www.instagram.com/${username}/`;
+    const pageProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(pageUrl)}`;
+    
+    const pageResponse = await fetch(pageProxyUrl);
+    const pageData = await pageResponse.json();
+    
+    if (pageData.contents) {
+      // Extract from meta tag
+      const metaMatch = pageData.contents.match(/<meta property="og:image" content="([^"]+)"/);
+      if (metaMatch && metaMatch[1]) {
+        img.src = metaMatch[1];
+        return;
+      }
+    }
+    
+    console.warn(`Could not load Instagram profile picture for ${username}`);
+  } catch (error) {
+    console.error(`Error loading Instagram profile picture for ${username}:`, error);
+  }
+};
+
+// Load Instagram profile pictures on page load
+const loadInstagramImages = async () => {
+  const images = document.querySelectorAll('img[onerror*="loadInstagramProfilePic"]');
+  images.forEach((img) => {
+    const onerrorAttr = img.getAttribute('onerror');
+    const match = onerrorAttr.match(/loadInstagramProfilePic\(this, '([^']+)'\)/);
+    if (match && match[1]) {
+      loadInstagramProfilePic(img, match[1]);
+    }
+  });
+};
+
+// Google Maps callback function
+window.initMap = () => {
+  renderCoverageMap();
+};
+
 renderDrops();
 attachHandlers();
 initAgeGate();
-renderCoverageMap();
+// renderCoverageMap() will be called by initMap callback when Google Maps loads
+if (typeof google !== "undefined" && google.maps) {
+  renderCoverageMap();
+}
 initDeliveryForm();
 registerServiceWorker();
+loadInstagramImages();

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About Rong Liquor</title>
     <link rel="stylesheet" href="styles/main.css" />
+    <script src="scripts/main.js" type="module"></script>
   </head>
   <body>
     <header class="site-header">
@@ -21,7 +22,7 @@
     </header>
     <main class="section">
       <section class="section crew">
-        <div>
+        <div class="section-heading">
           <h1>Who We Are</h1>
           <p>
             Rong Liquor is Wakadinali's official drop platform – a mash-up of
@@ -33,13 +34,88 @@
             and Westlands belts.
           </p>
         </div>
-        <div class="crew-map">
-          <h2>Timeline</h2>
-          <ul class="zones">
-            <li>2018 – Rong Rendé anthem drops.</li>
-            <li>2023 – Urban pop-up testing.</li>
-            <li>2025 – Full-stack PWA built for Kenya.</li>
-          </ul>
+        
+        <div class="crew-grid">
+          <article class="crew-card">
+            <div class="crew-image">
+              <img 
+                src="https://instagram.com/api/v1/users/web_profile_info/?username=scar_mkadinali"
+                alt="Scar Mkadinali"
+                loading="lazy"
+                onerror="loadInstagramProfilePic(this, 'scar_mkadinali')"
+              />
+            </div>
+            <div class="crew-info">
+              <h3>Scar Mkadinali</h3>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p>One of the founding members of Wakadinali, bringing Gengetone vibes to the liquor game.</p>
+              <a href="https://www.instagram.com/scar_mkadinali/" target="_blank" rel="noopener" class="crew-link">
+                <span>@scar_mkadinali</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="crew-card">
+            <div class="crew-image">
+              <img 
+                src="https://instagram.com/api/v1/users/web_profile_info/?username=sewersydaa"
+                alt="Sewersydaa"
+                loading="lazy"
+                onerror="loadInstagramProfilePic(this, 'sewersydaa')"
+              />
+            </div>
+            <div class="crew-info">
+              <h3>Sewersydaa</h3>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p>Wakadinali member driving the Rong Rendé culture and community connection.</p>
+              <a href="https://www.instagram.com/sewersydaa/" target="_blank" rel="noopener" class="crew-link">
+                <span>@sewersydaa</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="crew-card">
+            <div class="crew-image">
+              <img 
+                src="https://instagram.com/api/v1/users/web_profile_info/?username=munga_domani"
+                alt="Munga Domani"
+                loading="lazy"
+                onerror="loadInstagramProfilePic(this, 'munga_domani')"
+              />
+            </div>
+            <div class="crew-info">
+              <h3>Munga Domani</h3>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p>Wakadinali member bringing the authentic Nairobi sound to the brand.</p>
+              <a href="https://www.instagram.com/munga_domani/" target="_blank" rel="noopener" class="crew-link">
+                <span>@munga_domani</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+        </div>
+
+        <div class="timeline">
+          <article>
+            <h3>2018 • Lyrics to Lifestyle</h3>
+            <p>Rong Rendé anthem drops, Wakadinali flips bars into a community-first liquor collective.</p>
+          </article>
+          <article>
+            <h3>2023 • Pop-Ups & Pop Bottles</h3>
+            <p>Arbantone rooftop sessions taught us speed, traceability, and premium curation.</p>
+          </article>
+          <article>
+            <h3>2025 • Rong Liquor PWA</h3>
+            <p>The definitive Gengetone delivery hub, tuned for Nairobi's urban youth and tourists alike.</p>
+          </article>
         </div>
       </section>
     </main>
