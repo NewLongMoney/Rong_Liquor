@@ -1,0 +1,17 @@
+{
+  "name": "Rong Liquor",
+  "short_name": "RongLiquor",
+  "description": "Gengetone-inspired liquor delivery with 30-60 minute Nairobi drops.",
+  "background_color": "#0f1115",
+  "theme_color": "#c91517",
+  "display": "standalone",
+  "start_url": "/index.html",
+  "icons": [
+    {
+      "src": "assets/logo.svg",
+      "sizes": "240x120",
+      "type": "image/svg+xml"
+    }
+  ]
+}
+

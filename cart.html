@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rong Liquor Cart</title>
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo-cluster">
+        <img src="assets/logo.svg" alt="Rong Liquor" />
+        <span class="slogan">Cart & Checkout</span>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="drops.html">Drops</a>
+        <a href="vibes.html">Vibes</a>
+        <a href="about.html">Crew</a>
+      </nav>
+    </header>
+    <main class="section">
+      <div class="delivery">
+        <div class="delivery-card">
+          <h1>Your Mic-Shaped Basket</h1>
+          <p>
+            Cart experience styled after Saucey but infused with graffiti upsell
+            prompts.
+          </p>
+          <div id="cart-items"></div>
+        </div>
+        <div class="contact-card">
+          <h2>Secure Checkout</h2>
+          <form class="delivery-form" id="checkout-form">
+            <label>
+              <span>Full name</span>
+              <input type="text" required />
+            </label>
+            <label>
+              <span>Phone (M-Pesa)</span>
+              <input type="tel" required />
+            </label>
+            <label>
+              <span>Delivery address</span>
+              <input type="text" required />
+            </label>
+            <label>
+              <span>Payment method</span>
+              <select>
+                <option>M-Pesa</option>
+                <option>Card</option>
+                <option>Cashless</option>
+              </select>
+            </label>
+            <button class="btn btn-primary">Complete Order</button>
+          </form>
+        </div>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <p>Drink responsibly.</p>
+    </footer>
+    <script type="module">
+      import { drops } from "./scripts/data.js";
+      const cartItemsEl = document.getElementById("cart-items");
+      cartItemsEl.innerHTML = drops
+        .slice(0, 3)
+        .map(
+          (drop) => `
+          <article class="drop-card">
+            <h3>${drop.name}</h3>
+            <p>${drop.mood}</p>
+            <p class="price">KES ${drop.price.toLocaleString()}</p>
+          </article>
+        `
+        )
+        .join("");
+    </script>
+  </body>
+</html>
+

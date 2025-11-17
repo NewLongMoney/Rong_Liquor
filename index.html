@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Rong Liquor – Nairobi's hip-hop fueled liquor delivery: Gengetone vibes, Arbantone speed, 30-60 minute drops citywide."
+    />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+    <link rel="stylesheet" href="styles/main.css" />
+    <title>Rong Liquor | Nairobi Hip-Hop Delivery</title>
+  </head>
+  <body>
+    <div id="age-gate" class="age-gate">
+      <div class="age-card">
+        <img src="assets/logo.svg" alt="Rong Liquor logo" class="gate-logo" />
+        <p class="tag">21+ Zone – No Minors in the Cypher</p>
+        <p>
+          Rong Liquor keeps the vibes high and responsible. Confirm you're of
+          legal drinking age to enter.
+        </p>
+        <div class="gate-actions">
+          <button id="confirm-age" class="btn btn-primary">I'm 21+ fam</button>
+          <button id="deny-age" class="btn btn-secondary">Not yet</button>
+        </div>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <div class="logo-cluster">
+        <img src="assets/logo.svg" alt="Rong Liquor" />
+        <span class="slogan">Rong Rendé • Wakadinali Certified</span>
+      </div>
+      <nav class="main-nav" aria-label="Primary">
+        <button class="nav-toggle" aria-expanded="false" aria-controls="nav">
+          <span></span><span></span><span></span>
+        </button>
+        <ul id="nav">
+          <li><a href="#drops">Drops</a></li>
+          <li><a href="#vibes">Vibes</a></li>
+          <li><a href="#about">Crew</a></li>
+          <li><a href="#delivery">Deliveries</a></li>
+          <li><a href="drops.html">Full Catalog</a></li>
+        </ul>
+      </nav>
+      <div class="utility">
+        <label class="address-input">
+          <span class="icon spray"></span>
+          <input
+            type="text"
+            id="address"
+            placeholder="Ping your drop zone"
+            autocomplete="off"
+          />
+        </label>
+        <button class="btn btn-accent" id="deliver-now">Deliver Now</button>
+        <button class="cart" aria-label="View cart">
+          <span class="icon mic"></span>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero__content">
+          <p class="kicker">Gengetone • Arbantone • 30-60 min</p>
+          <h1>Rong Liquor Drops Hit Harder Than a Wakadinali Verse</h1>
+          <p class="subtext">
+            Graffiti street art energy blended with Saucey-level speed. Enter
+            your address to unlock Nairobi's freshest bottles, mapped, tracked,
+            and playlist-matched.
+          </p>
+          <div class="cta-group">
+            <button class="btn btn-primary" id="cta-address">
+              Enter Address to Shop
+            </button>
+            <a href="#drops" class="btn ghost">Explore Drops</a>
+          </div>
+          <div class="trust">
+            <span>Real-time tracking</span>
+            <span>M-Pesa ready</span>
+            <span>Nairobi urban zones</span>
+          </div>
+        </div>
+        <div class="hero__visual">
+          <div class="hero-card">
+            <h3>Eastlands Exclusive Drops</h3>
+            <p>Geo-fenced flash deals for Jericho, Buru Buru & Umoja clicks.</p>
+            <button class="link-btn">Unlock zone deals →</button>
+          </div>
+          <div class="reel">
+            <img
+              src="https://images.unsplash.com/photo-1514361892635-6e122620eaff?auto=format&fit=crop&w=900&q=80"
+              alt="Wakadinali cypher drop visual"
+            />
+            <span class="badge">Wakadinali cypher drop</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="drops" class="section drops">
+        <div class="section-heading">
+          <h2>Featured Drops</h2>
+          <p>Curated like ReserveBar, delivered like Saucey.</p>
+        </div>
+        <div class="filters">
+          <button class="chip active" data-filter="all">All vibes</button>
+          <button class="chip" data-filter="party">Party Starter</button>
+          <button class="chip" data-filter="smooth">Smooth Operator</button>
+          <button class="chip" data-filter="collectors">Collectors Only</button>
+          <label class="price-range">
+            <span>KES</span>
+            <input type="range" min="1500" max="15000" value="6500" />
+          </label>
+        </div>
+        <div class="drops-grid" id="drops-grid"></div>
+        <div class="section-cta">
+          <a href="drops.html" class="btn btn-accent">View all drops</a>
+        </div>
+      </section>
+
+      <section id="about" class="section crew">
+        <div class="timeline">
+          <article>
+            <h3>2018 • Lyrics to Lifestyle</h3>
+            <p>
+              Wakadinali flipped Rong Rendé bars into a community-first liquor
+              collective.
+            </p>
+          </article>
+          <article>
+            <h3>2023 • Pop-Ups & Pop Bottles</h3>
+            <p>
+              Arbantone rooftop sessions taught us speed, traceability, and
+              premium curation.
+            </p>
+          </article>
+          <article>
+            <h3>2025 • Rong Liquor PWA</h3>
+            <p>
+              The definitive Gengetone delivery hub, tuned for Nairobi's urban
+              youth and tourists alike.
+            </p>
+          </article>
+        </div>
+        <div class="crew-map">
+          <h2>Nairobi Drop Map</h2>
+          <p>Geo-fenced promos, Ringas to Rongai.</p>
+          <div id="map" class="map"></div>
+          <ul class="zones">
+            <li><span class="dot hot"></span> CBD / Upper Hill – 35 min avg</li>
+            <li><span class="dot east"></span> Eastlands – Flash deals</li>
+            <li><span class="dot west"></span> Westlands – Premium concierge</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="vibes" class="section vibes">
+        <div class="section-heading">
+          <h2>Vibes Lounge</h2>
+          <p>Playlists, recipes, cypher recaps, and UGC challenges.</p>
+        </div>
+        <div class="vibe-grid">
+          <article class="vibe-card">
+            <h3>Mix & Mic</h3>
+            <p>Craft a Rong Spritz while Scar spits his verse.</p>
+            <button class="link-btn">Read recipe →</button>
+          </article>
+          <article class="vibe-card">
+            <h3>Rong Rendé Playlist</h3>
+            <p>Spotify embeds synced with vibe-matched bottles.</p>
+            <iframe
+              src="https://open.spotify.com/embed/playlist/37i9dQZF1DX0hWmn8d0s5Q?utm_source=generator"
+              loading="lazy"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            ></iframe>
+          </article>
+          <article class="vibe-card">
+            <h3>UGC Cypher</h3>
+            <p>Tag @the_rongliquor to unlock exclusives.</p>
+            <button class="link-btn">Submit content →</button>
+          </article>
+        </div>
+      </section>
+
+      <section id="delivery" class="section delivery">
+        <div class="delivery-card">
+          <h2>Delivery Flow</h2>
+          <ul>
+            <li>M-Pesa, card, and cashless tips available.</li>
+            <li>Real-time tracking + SMS beat-drop alerts.</li>
+            <li>PWA offline cache for product pages.</li>
+          </ul>
+          <form class="delivery-form">
+            <label>
+              <span>Location</span>
+              <input type="text" placeholder="e.g. Umoja Estate" required />
+            </label>
+            <label>
+              <span>Drop window</span>
+              <select>
+                <option>ASAP (30-45 mins)</option>
+                <option>Later tonight</option>
+                <option>Schedule weekend</option>
+              </select>
+            </label>
+            <label>
+              <span>Payment</span>
+              <select>
+                <option>M-Pesa</option>
+                <option>Card</option>
+                <option>Cash on delivery</option>
+              </select>
+            </label>
+            <button type="submit" class="btn btn-primary">
+              Calculate ETA
+            </button>
+          </form>
+        </div>
+        <div class="contact-card">
+          <h2>Hit Us Up</h2>
+          <p>DJ Bot in Sheng, WhatsApp, or hotline.</p>
+          <div class="contact-options">
+            <a href="https://wa.me/254700000000" class="contact-pill">
+              WhatsApp: @RongLiquor
+            </a>
+            <a href="mailto:vibes@rongliquor.com" class="contact-pill">
+              Email: vibes@rongliquor.com
+            </a>
+            <a href="#chatbot" class="contact-pill">DJ Bot (Beta)</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <img src="assets/logo.svg" alt="Rong Liquor logo" class="footer-logo" />
+        <p>Drink responsibly – keep the vibes high, not the risks.</p>
+      </div>
+      <nav aria-label="Footer">
+        <a href="about.html">About</a>
+        <a href="drops.html">Drops</a>
+        <a href="vibes.html">Vibes</a>
+        <a href="cart.html">Cart</a>
+      </nav>
+      <div class="socials">
+        <a href="https://instagram.com/the_rongliquor" target="_blank"
+          >Instagram</a
+        >
+        <a href="https://tiktok.com/@rongliquor" target="_blank">TikTok</a>
+        <a href="https://youtube.com/@wakadinali" target="_blank">YouTube</a>
+      </div>
+    </footer>
+
+    <script src="scripts/data.js" type="module"></script>
+    <script src="scripts/main.js" type="module"></script>
+  </body>
+</html>
+
