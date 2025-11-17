@@ -1,4 +1,4 @@
-const CACHE_KEY = "rong-liquor-v1";
+const CACHE_KEY = "rong-liquor-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -18,6 +18,7 @@ self.addEventListener("install", (event) => {
       return cache.addAll(ASSETS);
     })
   );
+  self.skipWaiting(); // Force activate new service worker immediately
 });
 
 self.addEventListener("activate", (event) => {
@@ -26,6 +27,7 @@ self.addEventListener("activate", (event) => {
       Promise.all(keys.map((key) => (key === CACHE_KEY ? null : caches.delete(key))))
     )
   );
+  return self.clients.claim(); // Take control of all pages immediately
 });
 
 self.addEventListener("fetch", (event) => {
