@@ -149,11 +149,20 @@
         <div class="crew-map">
           <h2>Nairobi Drop Map</h2>
           <p>Geo-fenced promos, Ringas to Rongai.</p>
-          <div id="map" class="map"></div>
+          <div id="map" class="map" aria-label="Nairobi delivery coverage map"></div>
+          <p class="eta-output" id="zone-eta">
+            Tap a zone bubble to preview ETA + promo heat.
+          </p>
           <ul class="zones">
-            <li><span class="dot hot"></span> CBD / Upper Hill – 35 min avg</li>
-            <li><span class="dot east"></span> Eastlands – Flash deals</li>
-            <li><span class="dot west"></span> Westlands – Premium concierge</li>
+            <li data-zone="cbd">
+              <span class="dot hot"></span> CBD / Upper Hill – 35 min avg
+            </li>
+            <li data-zone="east">
+              <span class="dot east"></span> Eastlands – Flash deals
+            </li>
+            <li data-zone="west">
+              <span class="dot west"></span> Westlands – Premium concierge
+            </li>
           </ul>
         </div>
       </section>
@@ -218,6 +227,9 @@
             <button type="submit" class="btn btn-primary">
               Calculate ETA
             </button>
+            <p class="eta-output" id="delivery-eta">
+              Awaiting drop zone ping…
+            </p>
           </form>
         </div>
         <div class="contact-card">
