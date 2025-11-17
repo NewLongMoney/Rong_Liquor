@@ -1,4 +1,4 @@
-import { drops } from "./data.js";
+import { drops, categories } from "./data.js";
 
 const dropsGrid = document.getElementById("drops-grid");
 const filterButtons = document.querySelectorAll(".chip");
@@ -57,36 +57,52 @@ let activeZoneId = "cbd";
 const renderDrops = () => {
   if (!dropsGrid) return;
   dropsGrid.innerHTML = "";
-  drops
-    .filter((drop) => activeFilter === "all" || drop.vibe === activeFilter)
-    .forEach((drop) => {
-      const card = document.createElement("article");
-      card.className = "drop-card";
-      card.innerHTML = `
-        <div class="drop-meta">
-          <p class="badge">${drop.badge}</p>
-          <h3>${drop.name}</h3>
-          <p>${drop.mood}</p>
-        </div>
-        <div class="drop-price">
-          <p class="price">KES ${drop.price.toLocaleString()}</p>
-        </div>
-        <button class="btn btn-primary" data-id="${drop.id}">
-          Add to cart
-        </button>
-      `;
-      dropsGrid.appendChild(card);
-    });
+  
+  const filteredDrops = drops.filter((drop) => {
+    if (activeFilter === "all") return true;
+    return drop.category === activeFilter;
+  });
+
+  if (filteredDrops.length === 0) {
+    dropsGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
+        <p>No products found in this category.</p>
+      </div>
+    `;
+    return;
+  }
+
+  filteredDrops.forEach((drop) => {
+    const card = document.createElement("article");
+    card.className = "drop-card";
+    card.innerHTML = `
+      <div class="drop-meta">
+        ${drop.badge ? `<p class="badge">${drop.badge}</p>` : ""}
+        <h3>${drop.name}</h3>
+        <p>${drop.size || ""} ${drop.origin ? `• ${drop.origin}` : ""}</p>
+      </div>
+      <div class="drop-price">
+        <p class="price">KES ${drop.price.toLocaleString()}</p>
+        ${drop.size ? `<p class="size">${drop.size}</p>` : ""}
+      </div>
+      <button class="btn btn-primary" data-id="${drop.id}">
+        Add to cart
+      </button>
+    `;
+    dropsGrid.appendChild(card);
+  });
 };
 
 const attachHandlers = () => {
   dropsGrid?.addEventListener("click", (event) => {
     if (event.target.matches("button[data-id]")) {
       cartItems += 1;
-      cartCount.textContent = cartItems;
+      if (cartCount) cartCount.textContent = cartItems;
       event.target.textContent = "Added!";
+      event.target.style.background = "#21ff8c";
       setTimeout(() => {
         event.target.textContent = "Add to cart";
+        event.target.style.background = "";
       }, 1200);
     }
   });
@@ -95,13 +111,13 @@ const attachHandlers = () => {
     button.addEventListener("click", () => {
       filterButtons.forEach((b) => b.classList.remove("active"));
       button.classList.add("active");
-      activeFilter = button.dataset.filter;
+      activeFilter = button.dataset.filter || "all";
       renderDrops();
     });
   });
 
   deliverNow?.addEventListener("click", () => {
-    const address = document.getElementById("address").value;
+    const address = document.getElementById("address")?.value;
     const message = address
       ? `ETA for ${address}: 35-50 mins depending on traffic.`
       : "Enter a Nairobi drop zone to unlock estimates.";
@@ -111,11 +127,11 @@ const attachHandlers = () => {
   navToggle?.addEventListener("click", () => {
     const expanded = navToggle.getAttribute("aria-expanded") === "true";
     navToggle.setAttribute("aria-expanded", String(!expanded));
-    navList.classList.toggle("open");
+    navList?.classList.toggle("open");
   });
 
   confirmAge?.addEventListener("click", () => {
-    ageGate.classList.add("hidden");
+    ageGate?.classList.add("hidden");
     localStorage.setItem("rong-age-verified", "true");
   });
 
@@ -141,22 +157,22 @@ const renderCoverageMap = () => {
     <svg viewBox="0 0 360 240" role="img" aria-label="Rong Liquor delivery coverage">
       <defs>
         <linearGradient id="cityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#12141b"/>
-          <stop offset="100%" stop-color="#1f2330"/>
+          <stop offset="0%" stop-color="#f8f9fa"/>
+          <stop offset="100%" stop-color="#e9ecef"/>
         </linearGradient>
         <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#ff1f7a"/>
-          <stop offset="100%" stop-color="#00d4ff"/>
+          <stop offset="0%" stop-color="#c91517"/>
+          <stop offset="100%" stop-color="#ff1f7a"/>
         </linearGradient>
       </defs>
       <rect width="360" height="240" fill="url(#cityGradient)"/>
-      <path d="${routePath}" stroke="url(#routeGradient)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.9" stroke-dasharray="8 10"/>
+      <path d="${routePath}" stroke="url(#routeGradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.7" stroke-dasharray="6 8"/>
       ${zones
         .map(
           (zone) => `
         <g data-zone="${zone.id}" class="zone-group">
-          <circle class="zone-circle" cx="${zone.cx}" cy="${zone.cy}" r="28" fill="${zone.fill}" stroke="${zone.stroke}" stroke-width="5" />
-          <text x="${zone.cx}" y="${zone.cy + 5}" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="12" fill="#0f1115" font-weight="700">${zone.short}</text>
+          <circle class="zone-circle" cx="${zone.cx}" cy="${zone.cy}" r="28" fill="${zone.fill}" stroke="${zone.stroke}" stroke-width="4" />
+          <text x="${zone.cx}" y="${zone.cy + 5}" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#fff" font-weight="700">${zone.short}</text>
         </g>
       `
         )
@@ -224,4 +240,3 @@ initAgeGate();
 renderCoverageMap();
 initDeliveryForm();
 registerServiceWorker();
-
