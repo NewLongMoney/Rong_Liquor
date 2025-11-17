@@ -1,4 +1,4 @@
-const CACHE_KEY = "rong-liquor-v2";
+const CACHE_KEY = "rong-liquor-v3";
 const ASSETS = [
   "./",
   "./index.html",
