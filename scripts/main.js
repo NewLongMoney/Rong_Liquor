@@ -77,9 +77,15 @@ const renderDrops = () => {
     card.className = "drop-card";
     card.innerHTML = `
       <div class="drop-image-wrapper">
-        <img src="${drop.image}" alt="${drop.name}" class="drop-image" loading="lazy" />
+        <img 
+          src="${drop.image}" 
+          alt="${drop.name}" 
+          class="drop-image" 
+          loading="lazy"
+          onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/f8f9fa/e9ecef?text=${encodeURIComponent(drop.name)}';"
+        />
         <div class="drop-image-overlay"></div>
-        ${drop.badge ? `<span class="badge-overlay">${drop.badge}</span>` : ""}
+        ${drop.badge ? `<span class="badge-overlay badge-${drop.badge.toLowerCase()}">${drop.badge.toUpperCase()}</span>` : ""}
       </div>
       <div class="drop-meta">
         <h3>${drop.name}</h3>

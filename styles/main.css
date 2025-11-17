@@ -525,12 +525,12 @@ a {
 }
 
 .drop-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -538,6 +538,7 @@ a {
   position: relative;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  min-height: 480px;
 }
 
 .drop-card::before {
@@ -573,17 +574,21 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1.5rem;
 }
 
 .drop-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .drop-card:hover .drop-image {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 .drop-image-overlay {
@@ -597,18 +602,39 @@ a {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--accent);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 2;
+}
+
+.badge-overlay.badge-popular {
+  background: #ff8b13;
+}
+
+.badge-overlay.badge-premium {
+  background: #8b5cf6;
+}
+
+.badge-overlay.badge-value {
+  background: #ef4444;
+}
+
+.badge-overlay.badge-exclusive {
+  background: linear-gradient(135deg, #c91517, #8b5cf6);
+}
+
+.badge-overlay.badge-local {
+  background: #10b981;
+}
+
+.badge-overlay.badge-exotic {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
 }
 
 .drop-meta {
