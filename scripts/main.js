@@ -76,14 +76,17 @@ const renderDrops = () => {
     const card = document.createElement("article");
     card.className = "drop-card";
     card.innerHTML = `
+      <div class="drop-image-wrapper">
+        <img src="${drop.image}" alt="${drop.name}" class="drop-image" loading="lazy" />
+        <div class="drop-image-overlay"></div>
+        ${drop.badge ? `<span class="badge-overlay">${drop.badge}</span>` : ""}
+      </div>
       <div class="drop-meta">
-        ${drop.badge ? `<p class="badge">${drop.badge}</p>` : ""}
         <h3>${drop.name}</h3>
-        <p>${drop.size || ""} ${drop.origin ? `• ${drop.origin}` : ""}</p>
+        <p class="drop-details">${drop.size || ""} ${drop.origin ? `• ${drop.origin}` : ""}</p>
       </div>
       <div class="drop-price">
         <p class="price">KES ${drop.price.toLocaleString()}</p>
-        ${drop.size ? `<p class="size">${drop.size}</p>` : ""}
       </div>
       <button class="btn btn-primary" data-id="${drop.id}">
         Add to cart
