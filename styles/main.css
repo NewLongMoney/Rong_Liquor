@@ -876,16 +876,18 @@ a {
   background: var(--bg);
 }
 
-.instagram-embed {
-  width: 100%;
-  min-height: 600px;
-  border: none;
+.instagram-embed-container blockquote {
+  margin: 0 !important;
 }
 
 .instagram-fallback {
   padding: 3rem;
   text-align: center;
   display: none;
+}
+
+.instagram-embed-container:has(.instagram-fallback) .instagram-fallback {
+  display: block;
 }
 
 .instagram-link {
