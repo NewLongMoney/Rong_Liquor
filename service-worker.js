@@ -1,42 +1,72 @@
-const CACHE_KEY = "rong-liquor-v4";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./drops.html",
-  "./vibes.html",
-  "./about.html",
-  "./cart.html",
-  "./styles/main.css",
-  "./scripts/data.js",
-  "./scripts/main.js",
-  "./assets/logo.svg"
-];
+const CACHE_KEY = "rong-liquor-v5";
+const CACHE_VERSION = Date.now().toString();
 
+// Network-first strategy - always fetch fresh content
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_KEY).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
-  self.skipWaiting(); // Force activate new service worker immediately
+  self.skipWaiting(); // Force activate immediately
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.map((key) => (key === CACHE_KEY ? null : caches.delete(key))))
+      Promise.all(
+        keys.map((key) => {
+          // Delete all old caches
+          return caches.delete(key);
+        })
+      )
     )
   );
-  return self.clients.claim(); // Take control of all pages immediately
+  return self.clients.claim(); // Take control immediately
 });
 
 self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then(
-      (response) =>
-        response ||
-        fetch(event.request).catch(() => caches.match("./index.html"))
-    )
-  );
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // For HTML, CSS, and JS files - always fetch from network first
+  if (
+    request.method === "GET" &&
+    (url.pathname.endsWith(".html") ||
+      url.pathname.endsWith(".css") ||
+      url.pathname.endsWith(".js") ||
+      url.pathname === "/" ||
+      url.pathname.endsWith("/"))
+  ) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Update cache in background but serve fresh content
+          const responseClone = response.clone();
+          caches.open(CACHE_KEY).then((cache) => {
+            cache.put(request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Only use cache if network fails
+          return caches.match(request).then((response) => {
+            return response || caches.match("./index.html");
+          });
+        })
+    );
+  } else {
+    // For other assets (images, fonts) - network first with cache fallback
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_KEY).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request);
+        })
+    );
+  }
 });
 

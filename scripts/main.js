@@ -329,7 +329,30 @@ const initDeliveryForm = () => {
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {
     try {
-      await navigator.serviceWorker.register("./service-worker.js");
+      const registration = await navigator.serviceWorker.register("./service-worker.js", {
+        updateViaCache: "none" // Always check for updates
+      });
+      
+      // Check for updates immediately
+      registration.update();
+      
+      // Check for updates every hour
+      setInterval(() => {
+        registration.update();
+      }, 3600000);
+      
+      // Listen for updates
+      registration.addEventListener("updatefound", () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          newWorker.addEventListener("statechange", () => {
+            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+              // New service worker available, reload page
+              window.location.reload();
+            }
+          });
+        }
+      });
     } catch (error) {
       console.error("SW registration failed", error);
     }
