@@ -128,8 +128,8 @@ const attachHandlers = () => {
   deliverNow?.addEventListener("click", () => {
     const address = document.getElementById("address")?.value;
     const message = address
-      ? `ETA for ${address}: 35-50 mins depending on traffic.`
-      : "Enter a Nairobi drop zone to unlock estimates.";
+      ? `Estimated delivery time for ${address}: 35-50 minutes depending on traffic.`
+      : "Please enter your address to see estimated delivery time.";
     alert(message);
   });
 
@@ -221,9 +221,9 @@ const setActiveZone = (zoneId) => {
     item.classList.toggle("active", item.dataset.zone === zoneId)
   );
 
-  if (zoneEta) {
-    zoneEta.textContent = `${zone.label}: ${zone.eta} • ${zone.note}`;
-  }
+    if (zoneEta) {
+      zoneEta.textContent = `${zone.label}: ${zone.eta} - ${zone.note}`;
+    }
 };
 
 const renderCoverageMap = () => {
@@ -316,13 +316,13 @@ const initDeliveryForm = () => {
     const locationField = deliveryForm.querySelector('input[type="text"]');
     const locationValue = locationField?.value.trim();
     if (!locationValue) {
-      deliveryEta.textContent = "Drop zone required – ping your estate.";
+      deliveryEta.textContent = "Please enter your delivery location.";
       deliveryEta.classList.add("warning");
       return;
     }
     deliveryEta.classList.remove("warning");
     const zoneMeta = zones.find((zone) => zone.id === activeZoneId) || zones[0];
-    deliveryEta.textContent = `${locationValue} locked. Rider ETA ${zoneMeta.eta}. Tracking link sent via SMS & WhatsApp.`;
+    deliveryEta.textContent = `Order confirmed for ${locationValue}. Estimated delivery: ${zoneMeta.eta}. Tracking information will be sent via SMS and WhatsApp.`;
   });
 };
 
