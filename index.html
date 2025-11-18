@@ -13,7 +13,23 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
     <link rel="stylesheet" href="styles/main.css" />
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJqpQtYGUmj18_Oz2Jdq4feTSTkuAs47Q&libraries=places,geometry&callback=initMap" async defer></script>
+    <script>
+      // Load config first, then initialize maps
+      (function() {
+        const configScript = document.createElement('script');
+        configScript.src = 'scripts/config.js';
+        configScript.onload = function() {
+          const mapsScript = document.createElement('script');
+          const apiKey = window.GOOGLE_MAPS_API_KEY || 'API_KEY_PLACEHOLDER';
+          mapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&callback=initMap`;
+          mapsScript.async = true;
+          mapsScript.defer = true;
+          mapsScript.id = 'maps-script';
+          document.head.appendChild(mapsScript);
+        };
+        document.head.appendChild(configScript);
+      })();
+    </script>
     <title>Rong Liquor | Premium Liquor Delivery</title>
   </head>
   <body>
