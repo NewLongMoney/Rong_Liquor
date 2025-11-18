@@ -1,353 +1,399 @@
 import { drops, categories } from "./data.js";
 
-const dropsGrid = document.getElementById("drops-grid");
-const filterButtons = document.querySelectorAll(".chip");
-const cartCount = document.getElementById("cart-count");
-const deliverNow = document.getElementById("deliver-now");
-const navToggle = document.querySelector(".nav-toggle");
-const navList = document.getElementById("nav");
-const ageGate = document.getElementById("age-gate");
-const confirmAge = document.getElementById("confirm-age");
-const denyAge = document.getElementById("deny-age");
-const zoneEta = document.getElementById("zone-eta");
-const zoneListItems = document.querySelectorAll(".zones li");
-const deliveryForm = document.querySelector(".delivery-form");
-const deliveryEta = document.getElementById("delivery-eta");
+let allProducts = [...drops];
+let filteredProducts = [...drops];
+let currentFilter = "all";
+let currentSort = "default";
+let currentPriceFilter = "all";
+let currentView = "grid";
+let displayedCount = 20;
 
-const zones = [
-  {
-    id: "cbd",
-    label: "CBD / Upper Hill",
-    eta: "30-35 mins",
-    note: "Bike + sprinter vans on standby",
-    fill: "#c91517",
-    stroke: "#ff5f1f",
-    short: "CBD",
-    lat: -1.2921,
-    lng: 36.8219,
-  },
-  {
-    id: "east",
-    label: "Eastlands",
-    eta: "35-45 mins",
-    note: "Flash promo zone for Buru, Umoja",
-    fill: "#00d4ff",
-    stroke: "#21ff8c",
-    short: "EAS",
-    lat: -1.2833,
-    lng: 36.8667,
-  },
-  {
-    id: "west",
-    label: "Westlands / Parklands",
-    eta: "40-55 mins",
-    note: "Premium concierge riders",
-    fill: "#ff1f7a",
-    stroke: "#c91517",
-    short: "WST",
-    lat: -1.2631,
-    lng: 36.8000,
-  },
-];
+// Initialize
+document.addEventListener("DOMContentLoaded", () => {
+  initializeAgeGate();
+  initializeNavigation();
+  initializeSearch();
+  initializeFilters();
+  initializeSorting();
+  initializeViewToggle();
+  renderProducts();
+  registerServiceWorker();
+});
 
-let cartItems = 0;
-let activeFilter = "all";
-let activeZoneId = "cbd";
+// Age Gate
+function initializeAgeGate() {
+  const ageGate = document.getElementById("age-gate");
+  const confirmBtn = document.getElementById("confirm-age");
+  const denyBtn = document.getElementById("deny-age");
 
-const renderDrops = () => {
-  if (!dropsGrid) return;
-  dropsGrid.innerHTML = "";
-  
-  const filteredDrops = drops.filter((drop) => {
-    if (activeFilter === "all") return true;
-    return drop.category === activeFilter;
-  });
+  if (!ageGate) return;
 
-  if (filteredDrops.length === 0) {
-    dropsGrid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
-        <p>No products found in this category.</p>
-      </div>
-    `;
+  const ageVerified = localStorage.getItem("ageVerified");
+  if (ageVerified === "true") {
+    ageGate.style.display = "none";
     return;
   }
 
-  filteredDrops.forEach((drop) => {
-    const card = document.createElement("article");
-    card.className = "drop-card";
-    card.innerHTML = `
-      <div class="drop-image-wrapper">
-        <img 
-          src="${drop.image}" 
-          alt="${drop.name}" 
-          class="drop-image" 
-          loading="lazy"
-          onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/f8f9fa/e9ecef?text=${encodeURIComponent(drop.name)}';"
-        />
-        <div class="drop-image-overlay"></div>
-        ${drop.badge ? `<span class="badge-overlay badge-${drop.badge.toLowerCase()}">${drop.badge.toUpperCase()}</span>` : ""}
-      </div>
-      <div class="drop-meta">
-        <h3>${drop.name}</h3>
-        <p class="drop-details">${drop.size || ""} ${drop.origin ? `• ${drop.origin}` : ""}</p>
-      </div>
-      <div class="drop-price">
-        <p class="price">KES ${drop.price.toLocaleString()}</p>
-      </div>
-      <button class="btn btn-primary" data-id="${drop.id}">
-        Add to cart
-      </button>
-    `;
-    dropsGrid.appendChild(card);
-  });
-};
-
-const attachHandlers = () => {
-  dropsGrid?.addEventListener("click", (event) => {
-    if (event.target.matches("button[data-id]")) {
-      cartItems += 1;
-      if (cartCount) cartCount.textContent = cartItems;
-      event.target.textContent = "Added!";
-      event.target.style.background = "#21ff8c";
-      setTimeout(() => {
-        event.target.textContent = "Add to cart";
-        event.target.style.background = "";
-      }, 1200);
-    }
+  confirmBtn?.addEventListener("click", () => {
+    localStorage.setItem("ageVerified", "true");
+    ageGate.style.display = "none";
   });
 
-  filterButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      filterButtons.forEach((b) => b.classList.remove("active"));
-      button.classList.add("active");
-      activeFilter = button.dataset.filter || "all";
-      renderDrops();
-    });
+  denyBtn?.addEventListener("click", () => {
+    window.location.href = "https://www.google.com";
   });
+}
 
-  deliverNow?.addEventListener("click", () => {
-    const address = document.getElementById("address")?.value;
-    const message = address
-      ? `Estimated delivery time for ${address}: 35-50 minutes depending on traffic.`
-      : "Please enter your address to see estimated delivery time.";
-    alert(message);
-  });
-
-  // Smooth scroll for anchor links
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
-      const href = this.getAttribute("href");
-      if (href === "#" || href === "") return;
-      
-      const target = document.querySelector(href);
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-        
-        // Close mobile menu if open
-        if (navList?.classList.contains("open")) {
-          navList.classList.remove("open");
-          navToggle?.setAttribute("aria-expanded", "false");
-        }
-      }
-    });
-  });
+// Navigation
+function initializeNavigation() {
+  const navToggle = document.querySelector(".nav-toggle");
+  const nav = document.getElementById("nav");
 
   navToggle?.addEventListener("click", () => {
-    const expanded = navToggle.getAttribute("aria-expanded") === "true";
-    navToggle.setAttribute("aria-expanded", String(!expanded));
-    navList?.classList.toggle("open");
+    const isOpen = navToggle.getAttribute("aria-expanded") === "true";
+    navToggle.setAttribute("aria-expanded", !isOpen);
+    nav?.classList.toggle("open");
   });
 
-  // Close menu when clicking outside
+  // Close nav on outside click
   document.addEventListener("click", (e) => {
-    if (navList?.classList.contains("open") && 
-        !navList.contains(e.target) && 
-        !navToggle?.contains(e.target)) {
-      navList.classList.remove("open");
+    if (!nav?.contains(e.target) && !navToggle?.contains(e.target)) {
+      nav?.classList.remove("open");
       navToggle?.setAttribute("aria-expanded", "false");
     }
   });
 
-  confirmAge?.addEventListener("click", () => {
-    ageGate?.classList.add("hidden");
-    localStorage.setItem("rong-age-verified", "true");
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      const href = this.getAttribute("href");
+      if (href === "#") return;
+      
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        nav?.classList.remove("open");
+        navToggle?.setAttribute("aria-expanded", "false");
+      }
+    });
+  });
+}
+
+// Search
+function initializeSearch() {
+  const searchInput = document.getElementById("search-input");
+  const searchBtn = document.getElementById("search-btn");
+
+  const performSearch = () => {
+    const query = searchInput?.value.toLowerCase().trim();
+    
+    if (!query) {
+      applyFilters();
+      return;
+    }
+
+    filteredProducts = allProducts.filter((product) => {
+      return (
+        product.name.toLowerCase().includes(query) ||
+        product.category.toLowerCase().includes(query) ||
+        product.origin?.toLowerCase().includes(query)
+      );
+    });
+
+    applySorting();
+    renderProducts();
+    updateSectionTitle(`Search: "${query}"`);
+  };
+
+  searchInput?.addEventListener("input", (e) => {
+    if (e.target.value.trim() === "") {
+      applyFilters();
+    }
   });
 
-  denyAge?.addEventListener("click", () => {
-    window.location.href = "https://www.google.com/search?q=mocktails";
+  searchInput?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      performSearch();
+    }
   });
-};
 
-const initAgeGate = () => {
-  const verified = localStorage.getItem("rong-age-verified");
-  if (!ageGate) return;
-  if (verified) {
-    ageGate.classList.add("hidden");
-  }
-};
+  searchBtn?.addEventListener("click", performSearch);
+}
 
-let googleMap = null;
-let mapMarkers = [];
-
-const setActiveZone = (zoneId) => {
-  activeZoneId = zoneId;
-  const zone = zones.find((z) => z.id === zoneId);
-  if (!zone || !googleMap) return;
-
-  // Update marker styles
-  mapMarkers.forEach((marker) => {
-    const isActive = marker.zoneId === zoneId;
-    const zoneData = zones.find((z) => z.id === marker.zoneId);
-    marker.setIcon({
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: isActive ? 16 : 12,
-      fillColor: zoneData.fill,
-      fillOpacity: 1,
-      strokeColor: zoneData.stroke,
-      strokeWeight: isActive ? 4 : 3
+// Filters
+function initializeFilters() {
+  const quickFilters = document.querySelectorAll(".quick-filter");
+  
+  quickFilters.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      quickFilters.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      
+      currentFilter = btn.dataset.filter || "all";
+      applyFilters();
     });
   });
 
-  // Center map on selected zone
-  googleMap.setCenter({ lat: zone.lat, lng: zone.lng });
-  googleMap.setZoom(13);
+  const priceFilter = document.getElementById("price-filter");
+  priceFilter?.addEventListener("change", (e) => {
+    currentPriceFilter = e.target.value;
+    applyFilters();
+  });
+}
 
-  // Update zone list items
-  zoneListItems.forEach((item) =>
-    item.classList.toggle("active", item.dataset.zone === zoneId)
-  );
-
-    if (zoneEta) {
-      zoneEta.textContent = `${zone.label}: ${zone.eta} - ${zone.note}`;
+function applyFilters() {
+  filteredProducts = allProducts.filter((product) => {
+    // Category filter
+    if (currentFilter !== "all" && product.category !== currentFilter) {
+      return false;
     }
-};
 
-const renderCoverageMap = () => {
+    // Price filter
+    if (currentPriceFilter !== "all") {
+      const price = product.price;
+      if (currentPriceFilter === "0-1000" && price >= 1000) return false;
+      if (currentPriceFilter === "1000-5000" && (price < 1000 || price >= 5000)) return false;
+      if (currentPriceFilter === "5000-10000" && (price < 5000 || price >= 10000)) return false;
+      if (currentPriceFilter === "10000+" && price < 10000) return false;
+    }
+
+    return true;
+  });
+
+  applySorting();
+  renderProducts();
+  updateSectionTitle(categories[currentFilter] || "All Products");
+}
+
+// Sorting
+function initializeSorting() {
+  const sortSelect = document.getElementById("sort-select");
+  sortSelect?.addEventListener("change", (e) => {
+    currentSort = e.target.value;
+    applySorting();
+    renderProducts();
+  });
+}
+
+function applySorting() {
+  switch (currentSort) {
+    case "price-low":
+      filteredProducts.sort((a, b) => a.price - b.price);
+      break;
+    case "price-high":
+      filteredProducts.sort((a, b) => b.price - a.price);
+      break;
+    case "name":
+      filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    default:
+      // Keep original order
+      break;
+  }
+}
+
+// View Toggle
+function initializeViewToggle() {
+  const viewBtns = document.querySelectorAll(".view-btn");
+  const productsGrid = document.getElementById("products-grid");
+
+  viewBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      viewBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      
+      currentView = btn.dataset.view || "grid";
+      productsGrid?.classList.toggle("list-view", currentView === "list");
+      renderProducts();
+    });
+  });
+}
+
+// Render Products
+function renderProducts() {
+  const grid = document.getElementById("products-grid");
+  if (!grid) return;
+
+  const productsToShow = filteredProducts.slice(0, displayedCount);
+  
+  grid.innerHTML = productsToShow.map((product) => {
+    const badge = product.badge ? `<span class="product-badge">${product.badge}</span>` : "";
+    
+    return `
+      <div class="product-card" data-id="${product.id}">
+        <div class="product-image">
+          ${badge}
+          <img src="${product.image}" alt="${product.name}" loading="lazy" />
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">${product.name}</h3>
+          <p class="product-details">${product.size} • ${product.origin || "International"}</p>
+          <div class="product-price">KES ${product.price.toLocaleString()}</div>
+        </div>
+        <div class="product-actions">
+          <button class="add-to-cart-btn" data-id="${product.id}">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Add click handlers
+  document.querySelectorAll(".product-card").forEach((card) => {
+    card.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("add-to-cart-btn")) {
+        const id = parseInt(card.dataset.id);
+        // Could navigate to product detail page
+        console.log("View product:", id);
+      }
+    });
+  });
+
+  // Add to cart handlers
+  document.querySelectorAll(".add-to-cart-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.id);
+      addToCart(id);
+    });
+  });
+
+  // Update load more button
+  const loadMoreBtn = document.getElementById("load-more");
+  if (loadMoreBtn) {
+    if (displayedCount >= filteredProducts.length) {
+      loadMoreBtn.style.display = "none";
+    } else {
+      loadMoreBtn.style.display = "inline-block";
+    }
+  }
+}
+
+// Load More
+document.addEventListener("click", (e) => {
+  if (e.target.id === "load-more") {
+    displayedCount += 20;
+    renderProducts();
+  }
+});
+
+// Update Section Title
+function updateSectionTitle(title) {
+  const titleEl = document.getElementById("section-title");
+  if (titleEl) {
+    titleEl.textContent = title;
+  }
+}
+
+// Cart Management
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function addToCart(productId) {
+  const product = allProducts.find((p) => p.id === productId);
+  if (!product) return;
+
+  const existingItem = cart.find((item) => item.id === productId);
+  
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartCount();
+  
+  // Visual feedback
+  const btn = document.querySelector(`.add-to-cart-btn[data-id="${productId}"]`);
+  if (btn) {
+    const originalText = btn.textContent;
+    btn.textContent = "Added!";
+    btn.classList.add("added");
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.classList.remove("added");
+    }, 2000);
+  }
+}
+
+function updateCartCount() {
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const countEl = document.getElementById("cart-count");
+  if (countEl) {
+    countEl.textContent = count;
+    countEl.style.display = count > 0 ? "flex" : "none";
+  }
+}
+
+// Initialize cart count
+updateCartCount();
+
+// Google Maps
+window.initMap = function() {
   const mapContainer = document.getElementById("map");
   if (!mapContainer) return;
 
-  // Check if Google Maps is loaded
-  if (typeof google === "undefined" || !google.maps) {
-    console.error("Google Maps API not loaded");
-    mapContainer.innerHTML = "<p>Map loading...</p>";
-    return;
-  }
-
-  // Initialize Google Map centered on Nairobi
-  const nairobiCenter = { lat: -1.2921, lng: 36.8219 };
-  
-  googleMap = new google.maps.Map(mapContainer, {
-    center: nairobiCenter,
-    zoom: 12,
+  const map = new google.maps.Map(mapContainer, {
+    zoom: 11,
+    center: { lat: -1.2921, lng: 36.8219 }, // Nairobi
     styles: [
       {
         featureType: "all",
         elementType: "geometry",
-        stylers: [{ color: "#0f1115" }]
+        stylers: [{ color: "#f5f5f5" }]
       },
       {
         featureType: "water",
         elementType: "geometry",
-        stylers: [{ color: "#1a1d24" }]
-      },
-      {
-        featureType: "road",
-        elementType: "geometry",
-        stylers: [{ color: "#2a2d35" }]
-      },
-      {
-        featureType: "poi",
-        elementType: "labels",
-        stylers: [{ visibility: "off" }]
+        stylers: [{ color: "#e0e0e0" }]
       }
-    ],
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: true
+    ]
   });
 
-  // Create markers for each zone
+  const zones = [
+    { id: "cbd", label: "CBD / Upper Hill", lat: -1.2921, lng: 36.8219, eta: "30-35 mins" },
+    { id: "east", label: "Eastlands", lat: -1.2800, lng: 36.8500, eta: "35-45 mins" },
+    { id: "west", label: "Westlands", lat: -1.2600, lng: 36.8000, eta: "40-55 mins" }
+  ];
+
   zones.forEach((zone) => {
     const marker = new google.maps.Marker({
       position: { lat: zone.lat, lng: zone.lng },
-      map: googleMap,
-      title: zone.label,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 12,
-        fillColor: zone.fill,
-        fillOpacity: 1,
-        strokeColor: zone.stroke,
-        strokeWeight: 3
-      },
-      label: {
-        text: zone.short,
-        color: "#fff",
-        fontSize: "11px",
-        fontWeight: "bold"
-      },
-      zoneId: zone.id
+      map: map,
+      title: zone.label
     });
 
-    // Add click listener to marker
+    const infoWindow = new google.maps.InfoWindow({
+      content: `<div style="padding: 0.5rem;"><strong>${zone.label}</strong><br>ETA: ${zone.eta}</div>`
+    });
+
     marker.addListener("click", () => {
-      setActiveZone(zone.id);
+      infoWindow.open(map, marker);
     });
-
-    mapMarkers.push(marker);
-  });
-
-  // Add click listeners to zone list items
-  zoneListItems.forEach((item) => {
-    item.addEventListener("click", () => setActiveZone(item.dataset.zone));
-  });
-
-  setActiveZone(activeZoneId);
-};
-
-const initDeliveryForm = () => {
-  if (!deliveryForm || !deliveryEta) return;
-  deliveryForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const locationField = deliveryForm.querySelector('input[type="text"]');
-    const locationValue = locationField?.value.trim();
-    if (!locationValue) {
-      deliveryEta.textContent = "Please enter your delivery location.";
-      deliveryEta.classList.add("warning");
-      return;
-    }
-    deliveryEta.classList.remove("warning");
-    const zoneMeta = zones.find((zone) => zone.id === activeZoneId) || zones[0];
-    deliveryEta.textContent = `Order confirmed for ${locationValue}. Estimated delivery: ${zoneMeta.eta}. Tracking information will be sent via SMS and WhatsApp.`;
   });
 };
 
+// Service Worker
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {
     try {
       const registration = await navigator.serviceWorker.register("./service-worker.js", {
-        updateViaCache: "none" // Always check for updates
+        updateViaCache: "none"
       });
       
-      // Check for updates immediately
       registration.update();
       
-      // Check for updates every hour
       setInterval(() => {
         registration.update();
       }, 3600000);
       
-      // Listen for updates
       registration.addEventListener("updatefound", () => {
         const newWorker = registration.installing;
         if (newWorker) {
           newWorker.addEventListener("statechange", () => {
             if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-              // New service worker available, reload page
               window.location.reload();
             }
           });
@@ -359,16 +405,15 @@ const registerServiceWorker = async () => {
   }
 };
 
-// Load Instagram profile picture using API
+// Load Instagram profile pictures
 window.loadInstagramProfilePic = async function(img, username) {
   try {
-    // Use Instagram's web profile API (may require authentication in some cases)
     const apiUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${username}`;
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
-    
+
     const response = await fetch(proxyUrl);
     const data = await response.json();
-    
+
     if (data.contents) {
       const profileData = JSON.parse(data.contents);
       if (profileData?.data?.user?.profile_pic_url_hd) {
@@ -380,53 +425,22 @@ window.loadInstagramProfilePic = async function(img, username) {
         return;
       }
     }
-    
-    // Fallback: Try to get from Instagram page HTML
+
     const pageUrl = `https://www.instagram.com/${username}/`;
     const pageProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(pageUrl)}`;
-    
+
     const pageResponse = await fetch(pageProxyUrl);
     const pageData = await pageResponse.json();
-    
+
     if (pageData.contents) {
-      // Extract from meta tag
       const metaMatch = pageData.contents.match(/<meta property="og:image" content="([^"]+)"/);
       if (metaMatch && metaMatch[1]) {
         img.src = metaMatch[1];
         return;
       }
     }
-    
     console.warn(`Could not load Instagram profile picture for ${username}`);
   } catch (error) {
     console.error(`Error loading Instagram profile picture for ${username}:`, error);
   }
 };
-
-// Load Instagram profile pictures on page load
-const loadInstagramImages = async () => {
-  const images = document.querySelectorAll('img[onerror*="loadInstagramProfilePic"]');
-  images.forEach((img) => {
-    const onerrorAttr = img.getAttribute('onerror');
-    const match = onerrorAttr.match(/loadInstagramProfilePic\(this, '([^']+)'\)/);
-    if (match && match[1]) {
-      loadInstagramProfilePic(img, match[1]);
-    }
-  });
-};
-
-// Google Maps callback function
-window.initMap = () => {
-  renderCoverageMap();
-};
-
-renderDrops();
-attachHandlers();
-initAgeGate();
-// renderCoverageMap() will be called by initMap callback when Google Maps loads
-if (typeof google !== "undefined" && google.maps) {
-  renderCoverageMap();
-}
-initDeliveryForm();
-registerServiceWorker();
-loadInstagramImages();
