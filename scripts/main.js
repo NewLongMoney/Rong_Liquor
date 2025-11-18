@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeCart();
   initializeCategories();
   initializeProducts();
-  initializeSlideshow();
+  initializeHeroSlideshow();
   updateCartUI();
 });
 
@@ -87,7 +87,9 @@ function initializeLocation() {
     }
   });
 
-  function updateETA() {
+  // Make updateETA globally accessible
+  window.updateETA = function() {
+    const etaTime = document.getElementById("eta-time");
     if (etaTime && deliveryLocation) {
       // Calculate ETA based on location (simplified)
       const etas = ["30-35 min", "35-45 min", "40-55 min"];
@@ -96,7 +98,7 @@ function initializeLocation() {
     } else if (etaTime) {
       etaTime.textContent = "--";
     }
-  }
+  };
 }
 
 // Cart
@@ -198,7 +200,7 @@ function updateCartUI() {
         <div class="empty-cart">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M9 2L7 6m8-4l-2 4M3 10h18M5 10l1 10h12l1-10"/>
-          </svg>
+    </svg>
           <p>Your cart is empty</p>
           <p class="empty-cart-subtitle">Add items to get started</p>
         </div>
@@ -333,19 +335,31 @@ function renderProducts() {
   const productsCount = document.getElementById("products-count");
   if (!productsGrid) return;
 
-  let filteredProducts = drops;
-  if (currentCategory !== "all") {
-    filteredProducts = drops.filter((p) => p.category === currentCategory);
+  let filteredProducts = [];
+  
+  if (currentCategory === "all") {
+    // Show 1 product per category when "All" is selected
+    const categoryMap = {};
+    drops.forEach((product) => {
+      if (!categoryMap[product.category]) {
+        categoryMap[product.category] = product;
+      }
+    });
+    filteredProducts = Object.values(categoryMap);
+  } else {
+    // Show only the first product in the selected category
+    const categoryProducts = drops.filter((p) => p.category === currentCategory);
+    filteredProducts = categoryProducts.length > 0 ? [categoryProducts[0]] : [];
   }
 
   if (productsTitle) {
     productsTitle.textContent = currentCategory === "all" 
-      ? "All Products" 
+      ? "Featured Products" 
       : categories[currentCategory] || "Products";
   }
 
   if (productsCount) {
-    productsCount.textContent = `${filteredProducts.length} items`;
+    productsCount.textContent = `${filteredProducts.length} ${filteredProducts.length === 1 ? 'item' : 'items'}`;
   }
 
   productsGrid.innerHTML = filteredProducts.map((product) => `
@@ -382,6 +396,60 @@ window.addProductToCart = function(productId) {
   }
 };
 
+// Hero Slideshow
+function initializeHeroSlideshow() {
+  const track = document.getElementById("hero-slideshow-track");
+  const indicators = document.getElementById("hero-slideshow-indicators");
+  const prevBtn = document.getElementById("prev-hero-slide");
+  const nextBtn = document.getElementById("next-hero-slide");
+  
+  if (!track) return;
+
+  const slides = track.querySelectorAll(".slide");
+  let currentSlide = 0;
+
+  // Create indicators
+  slides.forEach((_, index) => {
+    const indicator = document.createElement("button");
+    indicator.className = "indicator" + (index === 0 ? " active" : "");
+    indicator.addEventListener("click", () => goToSlide(index));
+    indicators?.appendChild(indicator);
+  });
+
+  function updateSlideshow() {
+    slides.forEach((slide, index) => {
+      slide.classList.toggle("active", index === currentSlide);
+    });
+    
+    indicators?.querySelectorAll(".indicator").forEach((ind, index) => {
+      ind.classList.toggle("active", index === currentSlide);
+    });
+  }
+
+  function goToSlide(index) {
+    currentSlide = index;
+    if (currentSlide < 0) currentSlide = slides.length - 1;
+    if (currentSlide >= slides.length) currentSlide = 0;
+    updateSlideshow();
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % slides.length;
+    updateSlideshow();
+  }
+
+  function prevSlide() {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    updateSlideshow();
+  }
+
+  prevBtn?.addEventListener("click", prevSlide);
+  nextBtn?.addEventListener("click", nextSlide);
+
+  // Auto-play slideshow
+  setInterval(nextSlide, 5000);
+}
+
 // Google Maps
 const STORE_LOCATION = {
   lat: -1.2833,
@@ -389,21 +457,27 @@ const STORE_LOCATION = {
   address: "Karagita Sanduku Park, Utawala, Nairobi"
 };
 
+let deliveryMap = null;
+let geocoder = null;
+let storeMarker = null;
+
 window.initMap = function() {
   const mapContainer = document.getElementById("map");
   if (!mapContainer) return;
 
-  const map = new google.maps.Map(mapContainer, {
+  // Initialize map
+  deliveryMap = new google.maps.Map(mapContainer, {
     zoom: 13,
     center: STORE_LOCATION,
     mapTypeControl: true,
     streetViewControl: false,
+    fullscreenControl: true,
   });
 
   // Store marker
-  new google.maps.Marker({
+  storeMarker = new google.maps.Marker({
     position: STORE_LOCATION,
-    map: map,
+    map: deliveryMap,
     title: "Rong Liquor Store",
     icon: {
       url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
@@ -417,43 +491,111 @@ window.initMap = function() {
     }
   });
 
+  // Store info window
+  const storeInfoWindow = new google.maps.InfoWindow({
+    content: `
+      <div style="padding: 1rem; min-width: 250px;">
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #c91517; font-weight: 700;">Rong Liquor Store</h3>
+        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+          <strong>📍 Location:</strong><br>
+          Karagita Sanduku Park<br>
+          Utawala, Nairobi
+        </p>
+      </div>
+    `
+  });
+
+  storeMarker.addListener("click", () => {
+    storeInfoWindow.open(deliveryMap, storeMarker);
+  });
+
+  // Open store info window by default
+  setTimeout(() => {
+    storeInfoWindow.open(deliveryMap, storeMarker);
+  }, 500);
+
   // Geocoder for address input
-  const geocoder = new google.maps.Geocoder();
+  geocoder = new google.maps.Geocoder();
   const addressInput = document.getElementById("address-input");
   const mapInfo = document.getElementById("map-info");
+  const saveLocationBtn = document.getElementById("save-location");
 
-  if (addressInput) {
-    addressInput.addEventListener("blur", () => {
-      const address = addressInput.value.trim();
-      if (address) {
-        geocoder.geocode({ address: address + ", Nairobi, Kenya" }, (results, status) => {
-          if (status === "OK" && results[0]) {
-            const location = results[0].geometry.location;
-            map.setCenter(location);
-            map.setZoom(14);
+  function geocodeAddress() {
+    const address = addressInput?.value.trim();
+    if (!address) return;
 
-            new google.maps.Marker({
-              position: location,
-              map: map,
-              title: "Delivery Location"
-            });
+    geocoder.geocode({ address: address + ", Nairobi, Kenya" }, (results, status) => {
+      if (status === "OK" && results[0]) {
+        const location = results[0].geometry.location;
+        
+        // Remove previous user marker if exists
+        if (window.userMarker) {
+          window.userMarker.setMap(null);
+        }
 
-            const distance = google.maps.geometry.spherical.computeDistanceBetween(
-              location,
-              new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
-            );
-            const distanceKm = (distance / 1000).toFixed(1);
-
-            if (mapInfo) {
-              mapInfo.innerHTML = `
-                <strong>✓ Location Found</strong><br>
-                Distance from store: <strong>${distanceKm} km</strong><br>
-                Estimated delivery: <strong>${Math.ceil(distanceKm / 0.5)}-${Math.ceil(distanceKm / 0.3)} minutes</strong>
-              `;
-            }
+        // Add user location marker
+        window.userMarker = new google.maps.Marker({
+          position: location,
+          map: deliveryMap,
+          title: "Delivery Location",
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: "#10b981",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 3
           }
         });
+
+        // Center map on user location
+        deliveryMap.setCenter(location);
+        deliveryMap.setZoom(14);
+
+        // Calculate distance
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+          location,
+          new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
+        );
+        const distanceKm = (distance / 1000).toFixed(1);
+        const eta = Math.ceil(distanceKm / 0.5) + "-" + Math.ceil(distanceKm / 0.3);
+
+        if (mapInfo) {
+          mapInfo.innerHTML = `
+            <strong style="color: #10b981;">✓ Location Found</strong><br>
+            Distance from store: <strong>${distanceKm} km</strong><br>
+            Estimated delivery: <strong>${eta} minutes</strong>
+          `;
+          mapInfo.style.color = "#1a1a1a";
+        }
+      } else {
+        if (mapInfo) {
+          mapInfo.innerHTML = `<strong style="color: #c91517;">⚠ Could not find address</strong><br>Please try a more specific location.`;
+          mapInfo.style.color = "#1a1a1a";
+        }
       }
     });
   }
+
+  // Geocode on input blur
+  addressInput?.addEventListener("blur", geocodeAddress);
+  
+  // Geocode on Enter key
+  addressInput?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      geocodeAddress();
+    }
+  });
+
+  // Save location button
+  saveLocationBtn?.addEventListener("click", () => {
+    const address = addressInput?.value.trim();
+    if (address) {
+      deliveryLocation = address;
+      localStorage.setItem("deliveryLocation", address);
+      document.getElementById("delivery-location").textContent = address;
+      document.getElementById("location-modal")?.classList.remove("active");
+      updateETA();
+    }
+  });
 };

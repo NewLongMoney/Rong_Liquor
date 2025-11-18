@@ -268,6 +268,125 @@ a {
   border: 2px solid var(--bg);
 }
 
+/* Hero Slideshow */
+.hero-slideshow {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  background: var(--bg-alt);
+}
+
+.slideshow-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.6s ease;
+}
+
+.slide {
+  min-width: 100%;
+  height: 100%;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.slide.active {
+  opacity: 1;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slide-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 3rem 2rem 2rem;
+  color: white;
+}
+
+.slide-overlay h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.slide-overlay p {
+  font-size: 1.25rem;
+  opacity: 0.95;
+}
+
+.slideshow-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px var(--shadow);
+  color: var(--text);
+}
+
+.slideshow-nav:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.slideshow-nav.prev {
+  left: 2rem;
+}
+
+.slideshow-nav.next {
+  right: 2rem;
+}
+
+.slideshow-indicators {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 10;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.indicator.active {
+  background: white;
+  width: 32px;
+  border-radius: 6px;
+}
+
 /* Quick Filters Bar - Saucey Style */
 .quick-filters-bar {
   background: var(--bg);
@@ -326,10 +445,114 @@ a {
   font-size: 1.1rem;
 }
 
+/* Media Sections */
+.media-section {
+  padding: 4rem 0;
+}
+
+.media-section:nth-child(even) {
+  background: var(--bg-alt);
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.section-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.youtube-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 8px 24px var(--shadow-lg);
+}
+
+.youtube-embed {
+  width: 100%;
+  aspect-ratio: 16/9;
+  display: block;
+}
+
+.youtube-info {
+  padding: 1.5rem;
+  background: var(--bg-alt);
+  text-align: center;
+}
+
+.youtube-info h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.youtube-info p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.youtube-info a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.instagram-section {
+  background: var(--bg);
+}
+
+.instagram-embed-container {
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 8px 24px var(--shadow-lg);
+  background: var(--bg);
+}
+
+.instagram-embed-container blockquote {
+  margin: 0 !important;
+}
+
+.instagram-fallback {
+  padding: 3rem;
+  text-align: center;
+  display: none;
+}
+
+.instagram-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-xs);
+  transition: all 0.2s ease;
+}
+
+.instagram-link:hover {
+  background: var(--primary);
+  color: white;
+}
+
 /* Products Section - Saucey Style */
 .products-section {
-  padding: 2rem 0 4rem;
-  background: var(--bg-alt);
+  padding: 3rem 0 4rem;
+  background: var(--bg);
 }
 
 .products-header {
