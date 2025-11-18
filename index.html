@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <meta name="description" content="Rong Liquor - Fast liquor delivery in Nairobi. Order premium spirits, wines & beers delivered to your door in 30-60 minutes." />
+    <meta name="description" content="Rong Liquor - Fast liquor delivery in Nairobi. Order premium spirits, wines, and beers delivered to your door." />
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
     <link rel="stylesheet" href="styles/main.css" />
@@ -35,10 +35,10 @@
       <div class="age-card">
         <img src="assets/logo.svg" alt="Rong Liquor" class="gate-logo" />
         <h2>Age Verification</h2>
-        <p>You must be 21+ to purchase alcohol</p>
-        <div class="age-buttons">
-          <button id="confirm-age" class="btn btn-primary">I'm 21+</button>
-          <button id="deny-age" class="btn btn-secondary">I'm under 21</button>
+        <p>You must be 21 or older to access this site.</p>
+        <div class="gate-actions">
+          <button id="confirm-age" class="btn btn-primary">I am 21+</button>
+          <button id="deny-age" class="btn btn-secondary">I am under 21</button>
         </div>
       </div>
     </div>
@@ -48,56 +48,41 @@
       <div class="header-container">
         <div class="logo">
           <img src="assets/logo.svg" alt="Rong Liquor" />
-          <span>Rong Liquor</span>
         </div>
-        
         <div class="location-selector">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
             <circle cx="12" cy="10" r="3"/>
           </svg>
-          <input type="text" id="delivery-location" placeholder="Enter delivery address" />
+          <div>
+            <span class="location-label">Deliver to</span>
+            <span class="location-value" id="delivery-location">Enter address</span>
+          </div>
         </div>
-
-        <div class="header-actions">
-          <button class="cart-btn" id="cart-button">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 2L7 6m8-4l-2 4M3 10h18M5 10l1 10h12l1-10"/>
-            </svg>
-            <span class="cart-count" id="cart-count">0</span>
-          </button>
-        </div>
+        <button class="cart-btn" id="cart-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 2L7 6m8-4l-2 4M3 10h18M5 10l1 10h12l1-10"/>
+          </svg>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main">
       <!-- Hero Banner -->
       <section class="hero-banner">
         <div class="hero-content">
           <h1>Premium Liquor Delivered Fast</h1>
-          <p>Order now • Delivered in 30-60 minutes</p>
-          <div class="hero-stats">
-            <div class="stat">
-              <strong>30-60 min</strong>
-              <span>Delivery</span>
-            </div>
-            <div class="stat">
-              <strong>500+</strong>
-              <span>Products</span>
-            </div>
-            <div class="stat">
-              <strong>24/7</strong>
-              <span>Support</span>
-            </div>
-          </div>
+          <p>Order your favorite spirits, wines & beers • Delivered in 30-60 minutes</p>
+          <button class="btn btn-primary btn-large" id="browse-btn">Browse Products</button>
         </div>
       </section>
 
       <!-- Categories -->
       <section class="categories-section">
         <div class="container">
-          <h2>Shop by Category</h2>
+          <h2 class="section-title">Shop by Category</h2>
           <div class="categories-grid" id="categories-grid"></div>
         </div>
       </section>
@@ -106,13 +91,16 @@
       <section class="products-section">
         <div class="container">
           <div class="section-header">
-            <h2 id="products-title">All Products</h2>
-            <div class="search-box">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
-              </svg>
-              <input type="text" id="product-search" placeholder="Search products..." />
+            <h2 class="section-title" id="products-title">All Products</h2>
+            <div class="view-controls">
+              <button class="view-btn active" data-view="grid">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"/>
+                  <rect x="14" y="3" width="7" height="7"/>
+                  <rect x="3" y="14" width="7" height="7"/>
+                  <rect x="14" y="14" width="7" height="7"/>
+                </svg>
+              </button>
             </div>
           </div>
           <div class="products-grid" id="products-grid"></div>
@@ -123,7 +111,7 @@
     <!-- Cart Sidebar -->
     <div class="cart-sidebar" id="cart-sidebar">
       <div class="cart-header">
-        <h2>Your Order</h2>
+        <h2>Your Cart</h2>
         <button class="close-cart" id="close-cart">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -137,90 +125,44 @@
             <path d="M9 2L7 6m8-4l-2 4M3 10h18M5 10l1 10h12l1-10"/>
           </svg>
           <p>Your cart is empty</p>
-          <span>Add items to get started</span>
+          <p class="empty-cart-subtitle">Add items to get started</p>
         </div>
       </div>
       <div class="cart-footer">
         <div class="cart-total">
-          <div class="total-row">
-            <span>Subtotal</span>
-            <span id="cart-subtotal">KES 0</span>
-          </div>
-          <div class="total-row">
-            <span>Delivery Fee</span>
-            <span id="delivery-fee">KES 200</span>
-          </div>
-          <div class="total-row total">
-            <span>Total</span>
-            <span id="cart-total">KES 200</span>
-          </div>
+          <span>Total</span>
+          <span class="total-amount" id="cart-total">KES 0</span>
         </div>
-        <button class="btn btn-primary btn-checkout" id="checkout-btn" disabled>
-          Proceed to Checkout
-        </button>
+        <button class="btn btn-primary btn-block" id="checkout-btn" disabled>Checkout</button>
       </div>
     </div>
 
     <!-- Cart Overlay -->
     <div class="cart-overlay" id="cart-overlay"></div>
 
-    <!-- Checkout Modal -->
-    <div class="checkout-modal" id="checkout-modal">
-      <div class="checkout-content">
-        <div class="checkout-header">
-          <h2>Checkout</h2>
-          <button class="close-checkout" id="close-checkout">
+    <!-- Location Modal -->
+    <div class="modal" id="location-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Enter Delivery Address</h2>
+          <button class="close-modal" id="close-location-modal">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
-        <div class="checkout-body">
-          <div class="checkout-section">
-            <h3>Delivery Address</h3>
-            <input type="text" id="checkout-address" placeholder="Enter delivery address" />
-            <select id="checkout-time">
-              <option>ASAP (30-45 mins)</option>
-              <option>Schedule for later</option>
-            </select>
-          </div>
-          <div class="checkout-section">
-            <h3>Payment Method</h3>
-            <div class="payment-options">
-              <label class="payment-option">
-                <input type="radio" name="payment" value="mpesa" checked />
-                <span>M-Pesa</span>
-              </label>
-              <label class="payment-option">
-                <input type="radio" name="payment" value="card" />
-                <span>Card</span>
-              </label>
-              <label class="payment-option">
-                <input type="radio" name="payment" value="cash" />
-                <span>Cash on Delivery</span>
-              </label>
-            </div>
-          </div>
-          <div class="checkout-summary">
-            <div class="summary-row">
-              <span>Subtotal</span>
-              <span id="checkout-subtotal">KES 0</span>
-            </div>
-            <div class="summary-row">
-              <span>Delivery</span>
-              <span>KES 200</span>
-            </div>
-            <div class="summary-row total">
-              <span>Total</span>
-              <span id="checkout-total">KES 200</span>
-            </div>
-          </div>
-        </div>
-        <div class="checkout-footer">
-          <button class="btn btn-primary btn-large" id="place-order">
-            Place Order
-          </button>
+        <div class="modal-body">
+          <input 
+            type="text" 
+            id="address-input" 
+            placeholder="Enter your address..."
+            class="address-input"
+            autocomplete="off"
+          />
+          <div id="map" class="delivery-map"></div>
+          <div id="map-info" class="map-info"></div>
+          <button class="btn btn-primary btn-block" id="save-location">Save Location</button>
         </div>
       </div>
     </div>
