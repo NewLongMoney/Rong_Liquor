@@ -13,7 +13,7 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
     <link rel="stylesheet" href="styles/main.css" />
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places,geometry&callback=initMap" async defer></script>
     <title>Rong Liquor | Premium Liquor Delivery</title>
   </head>
   <body>
@@ -59,33 +59,41 @@
     </header>
 
     <main>
-      <!-- Hero Section - Clean & Minimal -->
+      <!-- Hero Section - Clean & Minimal with Wakadinali -->
       <section class="hero">
         <div class="hero-container">
-          <h1>Premium Liquor Delivered Fast</h1>
-          <p class="hero-subtitle">Curated spirits, wines & beers • 30-60 min delivery • Nairobi</p>
-          
-          <div class="search-bar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input 
-              type="text" 
-              id="search-input" 
-              placeholder="Search for spirits, wines, beers..."
-              autocomplete="off"
-            />
-            <button class="btn btn-primary" id="search-btn">Search</button>
-          </div>
+          <div class="hero-content">
+            <div class="hero-text">
+              <h1>Premium Liquor Delivered Fast</h1>
+              <p class="hero-subtitle">Curated spirits, wines & beers • 30-60 min delivery • Nairobi</p>
+              
+              <div class="search-bar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input 
+                  type="text" 
+                  id="search-input" 
+                  placeholder="Search for spirits, wines, beers..."
+                  autocomplete="off"
+                />
+                <button class="btn btn-primary" id="search-btn">Search</button>
+              </div>
 
-          <div class="quick-filters">
-            <button class="quick-filter active" data-filter="all">All</button>
-            <button class="quick-filter" data-filter="beer">Beer</button>
-            <button class="quick-filter" data-filter="whiskey">Whiskey</button>
-            <button class="quick-filter" data-filter="vodka">Vodka</button>
-            <button class="quick-filter" data-filter="wine-red">Wine</button>
-            <button class="quick-filter" data-filter="champagne">Champagne</button>
+              <div class="quick-filters">
+                <button class="quick-filter active" data-filter="all">All</button>
+                <button class="quick-filter" data-filter="beer">Beer</button>
+                <button class="quick-filter" data-filter="whiskey">Whiskey</button>
+                <button class="quick-filter" data-filter="vodka">Vodka</button>
+                <button class="quick-filter" data-filter="wine-red">Wine</button>
+                <button class="quick-filter" data-filter="champagne">Champagne</button>
+              </div>
+            </div>
+            <div class="hero-image">
+              <img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=800&h=1000&fit=crop&q=90" alt="Wakadinali Crew" class="crew-hero-image" />
+              <div class="hero-badge">Wakadinali x Rong Liquor</div>
+            </div>
           </div>
         </div>
       </section>
@@ -170,27 +178,99 @@
         </div>
       </section>
 
-      <!-- About Section -->
+      <!-- Wakadinali Discography Section -->
+      <section class="discography-section">
+        <div class="discography-container">
+          <div class="section-header">
+            <h2>Wakadinali Discography</h2>
+            <p>Stream the latest tracks and albums from the crew</p>
+          </div>
+          
+          <div class="discography-grid">
+            <div class="album-card">
+              <div class="album-art">
+                <iframe
+                  src="https://open.spotify.com/embed/album/4j5qR7mCNRlPzbMpG2f6n2?utm_source=generator&theme=0"
+                  width="100%"
+                  height="352"
+                  frameBorder="0"
+                  allowfullscreen=""
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                ></iframe>
+              </div>
+              <div class="album-info">
+                <h3>Victims Of Madness 2.0</h3>
+                <p>Latest Album • 2024</p>
+              </div>
+            </div>
+            
+            <div class="album-card">
+              <div class="album-art">
+                <iframe
+                  src="https://open.spotify.com/embed/artist/10jefIr7Jj7c0dDJEqRcWK?utm_source=generator&theme=0"
+                  width="100%"
+                  height="352"
+                  frameBorder="0"
+                  allowfullscreen=""
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                ></iframe>
+              </div>
+              <div class="album-info">
+                <h3>Wakadinali Artist Page</h3>
+                <p>221K+ Monthly Listeners</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Section with Prominent Crew Images -->
       <section id="about" class="about-section">
         <div class="about-container">
-          <h2>About Rong Liquor</h2>
-          <p>Premium liquor delivery service bringing the finest spirits, wines, and beers directly to your door. Fast, reliable, and committed to responsible drinking.</p>
+          <div class="section-header">
+            <h2>The Wakadinali Crew</h2>
+            <p>Meet the artists behind Rong Liquor - bringing Gengetone vibes to premium liquor delivery</p>
+          </div>
+          
+          <div class="crew-showcase">
+            <div class="crew-main-image">
+              <img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=1200&h=800&fit=crop&q=90" alt="Wakadinali Crew" />
+              <div class="image-overlay">
+                <h3>Rong Rendé Lifestyle</h3>
+                <p>From lyrics to lifestyle - authentic Nairobi sound</p>
+              </div>
+            </div>
+          </div>
           
           <div class="crew-grid">
             <div class="crew-member">
+              <div class="crew-photo">
+                <img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&h=500&fit=crop&q=90" alt="Scar Mkadinali" />
+              </div>
               <h4>Scar Mkadinali</h4>
-              <p>Co-Founder</p>
-              <a href="https://www.instagram.com/scar_mkadinali/" target="_blank" rel="noopener">@scar_mkadinali</a>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p class="crew-bio">One of the founding members of Wakadinali, bringing Gengetone vibes to the liquor game.</p>
+              <a href="https://www.instagram.com/scar_mkadinali/" target="_blank" rel="noopener" class="crew-link">@scar_mkadinali →</a>
             </div>
             <div class="crew-member">
+              <div class="crew-photo">
+                <img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&h=500&fit=crop&q=90" alt="Sewersydaa" />
+              </div>
               <h4>Sewersydaa</h4>
-              <p>Co-Founder</p>
-              <a href="https://www.instagram.com/sewersydaa/" target="_blank" rel="noopener">@sewersydaa</a>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p class="crew-bio">Wakadinali member driving the Rong Rendé culture and community connection.</p>
+              <a href="https://www.instagram.com/sewersydaa/" target="_blank" rel="noopener" class="crew-link">@sewersydaa →</a>
             </div>
             <div class="crew-member">
+              <div class="crew-photo">
+                <img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&h=500&fit=crop&q=90" alt="Munga Domani" />
+              </div>
               <h4>Munga Domani</h4>
-              <p>Co-Founder</p>
-              <a href="https://www.instagram.com/munga_domani/" target="_blank" rel="noopener">@munga_domani</a>
+              <p class="crew-role">Co-Founder • Artist</p>
+              <p class="crew-bio">Wakadinali member bringing the authentic Nairobi sound to the brand.</p>
+              <a href="https://www.instagram.com/munga_domani/" target="_blank" rel="noopener" class="crew-link">@munga_domani →</a>
             </div>
           </div>
         </div>
@@ -226,9 +306,20 @@
               </ul>
             </div>
           </div>
-          <div class="map-container" style="margin-top: 3rem;">
-            <h3 style="margin-bottom: 1rem; font-size: 1.25rem;">Delivery Coverage Map</h3>
-            <div id="map" style="width: 100%; height: 400px; border-radius: var(--radius-lg); border: 1px solid var(--border);"></div>
+          <div class="map-container">
+            <h3>Real-Time Delivery Tracking</h3>
+            <p class="map-description">Enter your address to see delivery zones and estimated delivery times</p>
+            <div class="map-input-group">
+              <input 
+                type="text" 
+                id="delivery-address" 
+                placeholder="Enter your delivery address..."
+                class="map-input"
+              />
+              <button class="btn btn-primary" id="check-delivery">Check Delivery</button>
+            </div>
+            <div id="map" class="delivery-map"></div>
+            <div id="map-info" class="map-info"></div>
           </div>
         </div>
       </section>

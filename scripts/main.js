@@ -330,14 +330,22 @@ function updateCartCount() {
 // Initialize cart count
 updateCartCount();
 
-// Google Maps
+// Google Maps with Real Delivery Tracking
+let deliveryMap = null;
+let geocoder = null;
+let markers = [];
+
 window.initMap = function() {
   const mapContainer = document.getElementById("map");
   if (!mapContainer) return;
 
-  const map = new google.maps.Map(mapContainer, {
-    zoom: 11,
-    center: { lat: -1.2921, lng: 36.8219 }, // Nairobi
+  // Initialize map
+  deliveryMap = new google.maps.Map(mapContainer, {
+    zoom: 12,
+    center: { lat: -1.2921, lng: 36.8219 }, // Nairobi center
+    mapTypeControl: true,
+    streetViewControl: false,
+    fullscreenControl: true,
     styles: [
       {
         featureType: "all",
@@ -348,30 +356,179 @@ window.initMap = function() {
         featureType: "water",
         elementType: "geometry",
         stylers: [{ color: "#e0e0e0" }]
+      },
+      {
+        featureType: "poi",
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
       }
     ]
   });
 
+  geocoder = new google.maps.Geocoder();
+
+  // Delivery zones with coverage areas
   const zones = [
-    { id: "cbd", label: "CBD / Upper Hill", lat: -1.2921, lng: 36.8219, eta: "30-35 mins" },
-    { id: "east", label: "Eastlands", lat: -1.2800, lng: 36.8500, eta: "35-45 mins" },
-    { id: "west", label: "Westlands", lat: -1.2600, lng: 36.8000, eta: "40-55 mins" }
+    { 
+      id: "cbd", 
+      label: "CBD / Upper Hill", 
+      center: { lat: -1.2921, lng: 36.8219 },
+      eta: "30-35 mins",
+      radius: 5000 // meters
+    },
+    { 
+      id: "east", 
+      label: "Eastlands", 
+      center: { lat: -1.2800, lng: 36.8500 },
+      eta: "35-45 mins",
+      radius: 6000
+    },
+    { 
+      id: "west", 
+      label: "Westlands", 
+      center: { lat: -1.2600, lng: 36.8000 },
+      eta: "40-55 mins",
+      radius: 7000
+    }
   ];
 
+  // Add zone markers and circles
   zones.forEach((zone) => {
+    // Zone marker
     const marker = new google.maps.Marker({
-      position: { lat: zone.lat, lng: zone.lng },
-      map: map,
-      title: zone.label
+      position: zone.center,
+      map: deliveryMap,
+      title: zone.label,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: "#c91517",
+        fillOpacity: 1,
+        strokeColor: "#ffffff",
+        strokeWeight: 2
+      }
+    });
+
+    // Coverage circle
+    const circle = new google.maps.Circle({
+      strokeColor: "#c91517",
+      strokeOpacity: 0.3,
+      strokeWeight: 2,
+      fillColor: "#c91517",
+      fillOpacity: 0.1,
+      map: deliveryMap,
+      center: zone.center,
+      radius: zone.radius
     });
 
     const infoWindow = new google.maps.InfoWindow({
-      content: `<div style="padding: 0.5rem;"><strong>${zone.label}</strong><br>ETA: ${zone.eta}</div>`
+      content: `
+        <div style="padding: 0.75rem; min-width: 200px;">
+          <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #c91517;">${zone.label}</h3>
+          <p style="margin: 0; font-size: 0.9rem; color: #666;">Estimated Delivery: <strong>${zone.eta}</strong></p>
+          <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #999;">Coverage: ${(zone.radius / 1000).toFixed(1)}km radius</p>
+        </div>
+      `
     });
 
     marker.addListener("click", () => {
-      infoWindow.open(map, marker);
+      infoWindow.open(deliveryMap, marker);
     });
+
+    markers.push({ marker, circle, zone });
+  });
+
+  // Check delivery button handler
+  const checkDeliveryBtn = document.getElementById("check-delivery");
+  const deliveryAddressInput = document.getElementById("delivery-address");
+  const mapInfo = document.getElementById("map-info");
+
+  checkDeliveryBtn?.addEventListener("click", () => {
+    const address = deliveryAddressInput?.value.trim();
+    if (!address) {
+      mapInfo.textContent = "Please enter a delivery address.";
+      mapInfo.style.color = "#c91517";
+      return;
+    }
+
+    geocoder.geocode({ address: address + ", Nairobi, Kenya" }, (results, status) => {
+      if (status === "OK" && results[0]) {
+        const location = results[0].geometry.location;
+        
+        // Add user location marker
+        const userMarker = new google.maps.Marker({
+          position: location,
+          map: deliveryMap,
+          title: "Your Location",
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: "#10b981",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 3
+          }
+        });
+
+        // Center map on user location
+        deliveryMap.setCenter(location);
+        deliveryMap.setZoom(14);
+
+        // Find nearest zone
+        let nearestZone = null;
+        let minDistance = Infinity;
+
+        markers.forEach(({ zone }) => {
+          const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            location,
+            new google.maps.LatLng(zone.center.lat, zone.center.lng)
+          );
+
+          if (distance < minDistance && distance <= zone.radius) {
+            minDistance = distance;
+            nearestZone = zone;
+          }
+        });
+
+        if (nearestZone) {
+          mapInfo.innerHTML = `
+            <strong style="color: #10b981;">✓ Delivery Available</strong><br>
+            Your location is in the <strong>${nearestZone.label}</strong> zone.<br>
+            Estimated delivery time: <strong>${nearestZone.eta}</strong>
+          `;
+          mapInfo.style.color = "#1a1a1a";
+        } else {
+          mapInfo.innerHTML = `
+            <strong style="color: #c91517;">⚠ Limited Coverage</strong><br>
+            Your location may be outside our main delivery zones.<br>
+            Please contact us for delivery options: <strong>+254 700 000 000</strong>
+          `;
+          mapInfo.style.color = "#1a1a1a";
+        }
+
+        // Add info window for user location
+        const userInfoWindow = new google.maps.InfoWindow({
+          content: `
+            <div style="padding: 0.75rem;">
+              <strong>Your Location</strong><br>
+              ${address}
+            </div>
+          `
+        });
+
+        userInfoWindow.open(deliveryMap, userMarker);
+      } else {
+        mapInfo.textContent = "Could not find that address. Please try a more specific location.";
+        mapInfo.style.color = "#c91517";
+      }
+    });
+  });
+
+  // Enter key support
+  deliveryAddressInput?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      checkDeliveryBtn?.click();
+    }
   });
 };
 
