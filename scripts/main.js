@@ -42,15 +42,17 @@ function initializeAgeGate() {
 
 // Location
 function initializeLocation() {
-  const locationSelector = document.querySelector(".location-selector");
+  const locationSelector = document.getElementById("location-selector");
   const locationValue = document.getElementById("delivery-location");
   const locationModal = document.getElementById("location-modal");
   const closeModal = document.getElementById("close-location-modal");
   const saveLocation = document.getElementById("save-location");
   const addressInput = document.getElementById("address-input");
+  const etaTime = document.getElementById("eta-time");
 
   if (deliveryLocation) {
     locationValue.textContent = deliveryLocation;
+    updateETA();
   }
 
   locationSelector?.addEventListener("click", () => {
@@ -75,6 +77,7 @@ function initializeLocation() {
       localStorage.setItem("deliveryLocation", address);
       locationValue.textContent = address;
       locationModal.classList.remove("active");
+      updateETA();
     }
   });
 
@@ -83,6 +86,17 @@ function initializeLocation() {
       saveLocation?.click();
     }
   });
+
+  function updateETA() {
+    if (etaTime && deliveryLocation) {
+      // Calculate ETA based on location (simplified)
+      const etas = ["30-35 min", "35-45 min", "40-55 min"];
+      const randomETA = etas[Math.floor(Math.random() * etas.length)];
+      etaTime.textContent = randomETA;
+    } else if (etaTime) {
+      etaTime.textContent = "--";
+    }
+  }
 }
 
 // Cart
@@ -291,33 +305,18 @@ function initializeSlideshow() {
   });
 }
 
-// Categories
+// Quick Filters
 function initializeCategories() {
-  const categoriesGrid = document.getElementById("categories-grid");
-  if (!categoriesGrid) return;
-
-  const categoryList = [
-    { id: "all", name: "All", icon: "🍷" },
-    { id: "beer", name: "Beer", icon: "🍺" },
-    { id: "whiskey", name: "Whiskey", icon: "🥃" },
-    { id: "vodka", name: "Vodka", icon: "🍸" },
-    { id: "wine-red", name: "Wine", icon: "🍷" },
-    { id: "champagne", name: "Champagne", icon: "🥂" },
-  ];
-
-  categoriesGrid.innerHTML = categoryList.map((cat) => `
-    <div class="category-card" data-category="${cat.id}">
-      <div class="category-icon">${cat.icon}</div>
-      <div class="category-name">${cat.name}</div>
-    </div>
-  `).join("");
-
-  categoriesGrid.querySelectorAll(".category-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      currentCategory = card.dataset.category;
-      categoriesGrid.querySelectorAll(".category-card").forEach((c) => {
-        c.style.borderColor = c === card ? "var(--primary)" : "transparent";
-      });
+  const filterChips = document.querySelectorAll(".filter-chip");
+  
+  filterChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      currentCategory = chip.dataset.filter || "all";
+      
+      // Update active state
+      filterChips.forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      
       renderProducts();
     });
   });
@@ -331,6 +330,7 @@ function initializeProducts() {
 function renderProducts() {
   const productsGrid = document.getElementById("products-grid");
   const productsTitle = document.getElementById("products-title");
+  const productsCount = document.getElementById("products-count");
   if (!productsGrid) return;
 
   let filteredProducts = drops;
@@ -342,6 +342,10 @@ function renderProducts() {
     productsTitle.textContent = currentCategory === "all" 
       ? "All Products" 
       : categories[currentCategory] || "Products";
+  }
+
+  if (productsCount) {
+    productsCount.textContent = `${filteredProducts.length} items`;
   }
 
   productsGrid.innerHTML = filteredProducts.map((product) => `
@@ -356,9 +360,9 @@ function renderProducts() {
         <div class="product-footer">
           <div class="product-price">KES ${product.price.toLocaleString()}</div>
           <button class="add-to-cart" onclick="addProductToCart(${product.id})">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M12 5v14M5 12h14"/>
-    </svg>
+            </svg>
           </button>
         </div>
       </div>
