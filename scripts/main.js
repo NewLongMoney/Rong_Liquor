@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeCart();
   initializeCategories();
   initializeProducts();
+  initializeSlideshow();
   updateCartUI();
 });
 
@@ -214,6 +215,82 @@ function updateCartUI() {
 window.updateQuantity = updateQuantity;
 window.removeFromCart = removeFromCart;
 
+// Slideshow
+function initializeSlideshow() {
+  const track = document.getElementById("slideshow-track");
+  const dotsContainer = document.getElementById("slideshow-dots");
+  const prevBtn = document.getElementById("prev-slide");
+  const nextBtn = document.getElementById("next-slide");
+  
+  if (!track) return;
+
+  const slides = track.querySelectorAll(".slide");
+  let currentSlide = 0;
+
+  // Create dots
+  slides.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.className = "slideshow-dot" + (index === 0 ? " active" : "");
+    dot.addEventListener("click", () => goToSlide(index));
+    dotsContainer?.appendChild(dot);
+  });
+
+  function updateSlideshow() {
+    track.style.transform = `translateX(-${currentSlide * 100}%)`;
+    
+    // Update dots
+    dotsContainer?.querySelectorAll(".slideshow-dot").forEach((dot, index) => {
+      dot.classList.toggle("active", index === currentSlide);
+    });
+  }
+
+  function goToSlide(index) {
+    currentSlide = index;
+    if (currentSlide < 0) currentSlide = slides.length - 1;
+    if (currentSlide >= slides.length) currentSlide = 0;
+    updateSlideshow();
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % slides.length;
+    updateSlideshow();
+  }
+
+  function prevSlide() {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    updateSlideshow();
+  }
+
+  prevBtn?.addEventListener("click", prevSlide);
+  nextBtn?.addEventListener("click", nextSlide);
+
+  // Auto-play slideshow
+  setInterval(nextSlide, 5000);
+
+  // Touch/swipe support
+  let startX = 0;
+  let isDragging = false;
+
+  track.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    startX = e.clientX;
+  });
+
+  track.addEventListener("mouseup", (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const diff = startX - e.clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) nextSlide();
+      else prevSlide();
+    }
+  });
+
+  track.addEventListener("mouseleave", () => {
+    isDragging = false;
+  });
+}
+
 // Categories
 function initializeCategories() {
   const categoriesGrid = document.getElementById("categories-grid");
@@ -281,7 +358,7 @@ function renderProducts() {
           <button class="add-to-cart" onclick="addProductToCart(${product.id})">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 5v14M5 12h14"/>
-            </svg>
+    </svg>
           </button>
         </div>
       </div>
