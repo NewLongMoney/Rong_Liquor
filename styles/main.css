@@ -1,23 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Saucey-inspired vibrant theme with brand red */
-  --primary: #c91517;
-  --primary-hover: #ff1f2a;
-  --primary-light: rgba(201, 21, 23, 0.1);
-  --primary-bg: rgba(201, 21, 23, 0.05);
-  --accent: #ff6b35;
-  --bg: #ffffff;
-  --bg-alt: #fafafa;
+  --primary: #7b0f17;
+  --primary-hover: #99121d;
+  --primary-light: rgba(123, 15, 23, 0.15);
+  --primary-bg: rgba(123, 15, 23, 0.08);
+  --accent: #f5f1ec;
+  --bg: #f4f0eb;
+  --bg-alt: #ebe4de;
   --surface: #ffffff;
-  --text: #1a1a1a;
-  --text-muted: #6b7280;
+  --text: #1d1917;
+  --text-muted: #5f5753;
   --text-light: #ffffff;
-  --border: #e5e7eb;
-  --border-light: #f3f4f6;
-  --shadow: rgba(0, 0, 0, 0.08);
-  --shadow-hover: rgba(0, 0, 0, 0.12);
-  --shadow-lg: rgba(0, 0, 0, 0.15);
+  --border: #d9d0c9;
+  --border-light: #f0e6df;
+  --shadow: rgba(25, 7, 3, 0.12);
+  --shadow-hover: rgba(25, 7, 3, 0.2);
+  --shadow-lg: rgba(25, 7, 3, 0.28);
   --radius: 16px;
   --radius-sm: 12px;
   --radius-xs: 8px;
@@ -36,6 +35,28 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0, rgba(255, 255, 255, 0.02) 2px, transparent 2px, transparent 6px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+main,
+header,
+.hero-slideshow,
+.quick-filters-bar,
+.products-section,
+.media-section,
+.cart-sidebar,
+.modal {
+  position: relative;
+  z-index: 1;
 }
 
 img {
@@ -145,8 +166,8 @@ a {
 
 /* Header - Saucey Style */
 .header {
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -272,6 +293,8 @@ a {
 .hero-slideshow {
   width: 100%;
   margin-bottom: 0;
+  background: var(--primary);
+  border-bottom: 8px solid #120202;
 }
 
 .slideshow-container {
@@ -279,7 +302,7 @@ a {
   width: 100%;
   height: 500px;
   overflow: hidden;
-  background: var(--bg-alt);
+  background: var(--primary);
 }
 
 .slideshow-track {
@@ -304,6 +327,7 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: saturate(0.6);
 }
 
 .slide-overlay {
@@ -311,9 +335,11 @@ a {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  background: linear-gradient(180deg, rgba(10, 2, 0, 0.9), rgba(10, 2, 0, 0));
   padding: 3rem 2rem 2rem;
   color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .slide-overlay h2 {
@@ -389,13 +415,13 @@ a {
 
 /* Quick Filters Bar - Saucey Style */
 .quick-filters-bar {
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--primary);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.35);
   padding: 1rem 0;
   position: sticky;
   top: 73px;
   z-index: 90;
-  box-shadow: 0 2px 4px var(--shadow);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
 .filters-scroll {
@@ -416,29 +442,29 @@ a {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: var(--bg-alt);
-  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--text);
+  color: var(--text-light);
   flex-shrink: 0;
 }
 
 .filter-chip:hover {
-  border-color: var(--primary);
-  background: var(--primary-light);
-  color: var(--primary);
+  border-color: var(--text-light);
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--text-light);
 }
 
 .filter-chip.active {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(201, 21, 23, 0.3);
+  background: var(--text-light);
+  color: var(--primary);
+  border-color: var(--text-light);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .filter-chip span:first-child {
@@ -451,16 +477,18 @@ a {
 }
 
 .media-section:nth-child(even) {
-  background: var(--bg-alt);
+  background: var(--accent);
+  border-top: 4px solid #120202;
 }
 
 .section-title {
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 800;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   text-align: center;
-  letter-spacing: -0.02em;
-  color: var(--text);
+  letter-spacing: 0.08em;
+  color: #120202;
+  text-transform: uppercase;
 }
 
 .section-subtitle {
@@ -509,7 +537,8 @@ a {
 }
 
 .instagram-section {
-  background: var(--bg);
+  background: var(--accent);
+  border-top: 4px solid #120202;
 }
 
 .instagram-embed-container {
@@ -518,7 +547,8 @@ a {
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: 0 8px 24px var(--shadow-lg);
-  background: var(--bg);
+  background: var(--surface);
+  border: 3px solid #120202;
 }
 
 .instagram-embed-container blockquote {
@@ -552,7 +582,8 @@ a {
 /* Products Section - Saucey Style */
 .products-section {
   padding: 3rem 0 4rem;
-  background: var(--bg);
+  background: var(--accent);
+  border-top: 8px solid #120202;
 }
 
 .products-header {
@@ -563,10 +594,11 @@ a {
 }
 
 .products-title {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.02em;
+  color: #120202;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .products-count {
@@ -582,19 +614,19 @@ a {
 }
 
 .product-card {
-  background: var(--bg);
+  background: var(--surface);
   border-radius: var(--radius-sm);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid var(--border);
-  box-shadow: 0 2px 4px var(--shadow);
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
 }
 
 .product-card:hover {
-  border-color: var(--primary);
-  box-shadow: 0 8px 24px var(--shadow-hover);
-  transform: translateY(-4px);
+  border-color: #120202;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
+  transform: translateY(-6px);
 }
 
 .product-image {
@@ -624,7 +656,7 @@ a {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  background: var(--primary);
+  background: #120202;
   color: white;
   font-size: 0.65rem;
   font-weight: 700;
@@ -632,7 +664,7 @@ a {
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: 0 2px 8px rgba(201, 21, 23, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .product-info {
@@ -666,12 +698,12 @@ a {
 .product-price {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--primary);
+  color: #120202;
   letter-spacing: -0.02em;
 }
 
 .add-to-cart {
-  background: var(--primary);
+  background: #120202;
   color: white;
   border: none;
   width: 44px;
@@ -688,7 +720,7 @@ a {
 .add-to-cart:hover {
   background: var(--primary-hover);
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(201, 21, 23, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 .add-to-cart.added {
@@ -704,7 +736,7 @@ a {
   width: 420px;
   max-width: 90vw;
   height: 100vh;
-  background: var(--bg);
+  background: var(--surface);
   box-shadow: -4px 0 20px var(--shadow-lg);
   z-index: 1000;
   display: flex;
@@ -722,7 +754,7 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--bg-alt);
+  background: var(--accent);
 }
 
 .cart-header h2 {
@@ -778,7 +810,7 @@ a {
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  background: var(--bg-alt);
+  background: var(--accent);
   border-radius: var(--radius-sm);
   margin-bottom: 1rem;
 }
@@ -991,7 +1023,7 @@ a {
   height: 300px;
   border-radius: var(--radius-xs);
   margin-bottom: 1rem;
-  border: 1px solid var(--border);
+  border: 2px solid #120202;
 }
 
 .map-info {
