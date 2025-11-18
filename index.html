@@ -324,18 +324,26 @@
           </div>
           <div class="map-container">
             <h3>Real-Time Delivery Tracking</h3>
-            <p class="map-description">Enter your address to see delivery zones and estimated delivery times</p>
+            <p class="map-description">
+              Our store is located at <strong>Karagita Sanduku Park, Utawala</strong>. 
+              Enter your address to check delivery availability and estimated delivery times.
+            </p>
             <div class="map-input-group">
               <input 
                 type="text" 
                 id="delivery-address" 
-                placeholder="Enter your delivery address..."
+                placeholder="Enter your delivery address in Nairobi..."
                 class="map-input"
               />
               <button class="btn btn-primary" id="check-delivery">Check Delivery</button>
             </div>
             <div id="map" class="delivery-map"></div>
-            <div id="map-info" class="map-info"></div>
+            <div id="map-info" class="map-info">
+              <p style="margin: 0; color: #666;">
+                <strong>📍 Store Location:</strong> Karagita Sanduku Park, Utawala<br>
+                Click on the red marker to see store details. Delivery zones are shown as circles.
+              </p>
+            </div>
           </div>
         </div>
       </section>

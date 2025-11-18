@@ -334,15 +334,23 @@ updateCartCount();
 let deliveryMap = null;
 let geocoder = null;
 let markers = [];
+let storeMarker = null;
+
+// Rong Liquor Store Location - Karagita Sanduku Park, Utawala
+const STORE_LOCATION = {
+  lat: -1.2833,
+  lng: 36.8667,
+  address: "Karagita Sanduku Park, Utawala, Nairobi"
+};
 
 window.initMap = function() {
   const mapContainer = document.getElementById("map");
   if (!mapContainer) return;
 
-  // Initialize map
+  // Initialize map centered on the store location
   deliveryMap = new google.maps.Map(mapContainer, {
     zoom: 12,
-    center: { lat: -1.2921, lng: 36.8219 }, // Nairobi center
+    center: STORE_LOCATION, // Center on store location
     mapTypeControl: true,
     streetViewControl: false,
     fullscreenControl: true,
@@ -367,75 +375,140 @@ window.initMap = function() {
 
   geocoder = new google.maps.Geocoder();
 
-  // Delivery zones with coverage areas
+  // Add store location marker (prominent)
+  storeMarker = new google.maps.Marker({
+    position: STORE_LOCATION,
+    map: deliveryMap,
+    title: "Rong Liquor Store",
+    icon: {
+      url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+        <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="20" fill="#c91517" stroke="#ffffff" stroke-width="3"/>
+          <text x="24" y="30" font-family="Arial" font-size="24" font-weight="bold" fill="white" text-anchor="middle">R</text>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(48, 48),
+      anchor: new google.maps.Point(24, 24)
+    },
+    zIndex: 1000
+  });
+
+  // Store info window
+  const storeInfoWindow = new google.maps.InfoWindow({
+    content: `
+      <div style="padding: 1rem; min-width: 250px;">
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #c91517; font-weight: 700;">Rong Liquor Store</h3>
+        <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">
+          <strong>📍 Location:</strong><br>
+          Karagita Sanduku Park<br>
+          Utawala, Nairobi
+        </p>
+        <p style="margin: 0; font-size: 0.85rem; color: #999;">
+          <strong>Hours:</strong> Daily 10 AM - 10 PM<br>
+          <strong>Phone:</strong> +254 700 000 000
+        </p>
+      </div>
+    `
+  });
+
+  storeMarker.addListener("click", () => {
+    storeInfoWindow.open(deliveryMap, storeMarker);
+  });
+
+  // Open store info window by default
+  setTimeout(() => {
+    storeInfoWindow.open(deliveryMap, storeMarker);
+  }, 500);
+
+  // Delivery zones based on distance from store
   const zones = [
+    { 
+      id: "utawala", 
+      label: "Utawala & Nearby", 
+      center: { lat: -1.2833, lng: 36.8667 },
+      eta: "15-25 mins",
+      radius: 8000 // 8km radius
+    },
+    { 
+      id: "eastlands", 
+      label: "Eastlands", 
+      center: { lat: -1.2800, lng: 36.8500 },
+      eta: "25-35 mins",
+      radius: 12000 // 12km radius
+    },
     { 
       id: "cbd", 
       label: "CBD / Upper Hill", 
       center: { lat: -1.2921, lng: 36.8219 },
-      eta: "30-35 mins",
-      radius: 5000 // meters
-    },
-    { 
-      id: "east", 
-      label: "Eastlands", 
-      center: { lat: -1.2800, lng: 36.8500 },
       eta: "35-45 mins",
-      radius: 6000
+      radius: 15000 // 15km radius
     },
     { 
-      id: "west", 
-      label: "Westlands", 
+      id: "westlands", 
+      label: "Westlands / Parklands", 
       center: { lat: -1.2600, lng: 36.8000 },
-      eta: "40-55 mins",
-      radius: 7000
+      eta: "45-60 mins",
+      radius: 18000 // 18km radius
     }
   ];
 
-  // Add zone markers and circles
+  // Add delivery zone circles (centered on store)
   zones.forEach((zone) => {
-    // Zone marker
-    const marker = new google.maps.Marker({
+    // Coverage circle from store location
+    const circle = new google.maps.Circle({
+      strokeColor: "#c91517",
+      strokeOpacity: 0.4,
+      strokeWeight: 2,
+      fillColor: "#c91517",
+      fillOpacity: 0.08,
+      map: deliveryMap,
+      center: STORE_LOCATION, // All zones centered on store
+      radius: zone.radius
+    });
+
+    // Zone label marker at zone center
+    const labelMarker = new google.maps.Marker({
       position: zone.center,
       map: deliveryMap,
       title: zone.label,
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: 8,
+        scale: 6,
         fillColor: "#c91517",
-        fillOpacity: 1,
+        fillOpacity: 0.8,
         strokeColor: "#ffffff",
         strokeWeight: 2
+      },
+      label: {
+        text: zone.label.split(' ')[0], // First word of zone name
+        color: "#ffffff",
+        fontSize: "10px",
+        fontWeight: "bold"
       }
-    });
-
-    // Coverage circle
-    const circle = new google.maps.Circle({
-      strokeColor: "#c91517",
-      strokeOpacity: 0.3,
-      strokeWeight: 2,
-      fillColor: "#c91517",
-      fillOpacity: 0.1,
-      map: deliveryMap,
-      center: zone.center,
-      radius: zone.radius
     });
 
     const infoWindow = new google.maps.InfoWindow({
       content: `
-        <div style="padding: 0.75rem; min-width: 200px;">
-          <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #c91517;">${zone.label}</h3>
-          <p style="margin: 0; font-size: 0.9rem; color: #666;">Estimated Delivery: <strong>${zone.eta}</strong></p>
-          <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #999;">Coverage: ${(zone.radius / 1000).toFixed(1)}km radius</p>
+        <div style="padding: 0.75rem; min-width: 220px;">
+          <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #c91517; font-weight: 600;">${zone.label}</h3>
+          <p style="margin: 0 0 0.25rem 0; font-size: 0.9rem; color: #666;">
+            <strong>Estimated Delivery:</strong> ${zone.eta}
+          </p>
+          <p style="margin: 0 0 0.25rem 0; font-size: 0.85rem; color: #999;">
+            Distance from store: ~${(zone.radius / 1000).toFixed(1)}km
+          </p>
+          <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: #999; font-style: italic;">
+            Delivery from Karagita Sanduku Park, Utawala
+          </p>
         </div>
       `
     });
 
-    marker.addListener("click", () => {
-      infoWindow.open(deliveryMap, marker);
+    labelMarker.addListener("click", () => {
+      infoWindow.open(deliveryMap, labelMarker);
     });
 
-    markers.push({ marker, circle, zone });
+    markers.push({ circle, labelMarker, zone });
   });
 
   // Check delivery button handler
@@ -474,34 +547,53 @@ window.initMap = function() {
         deliveryMap.setCenter(location);
         deliveryMap.setZoom(14);
 
-        // Find nearest zone
+        // Calculate distance from store and find appropriate zone
+        const distanceFromStore = google.maps.geometry.spherical.computeDistanceBetween(
+          location,
+          new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
+        );
+
         let nearestZone = null;
         let minDistance = Infinity;
 
+        // Find the zone that covers this location
         markers.forEach(({ zone }) => {
-          const distance = google.maps.geometry.spherical.computeDistanceBetween(
-            location,
-            new google.maps.LatLng(zone.center.lat, zone.center.lng)
-          );
-
-          if (distance < minDistance && distance <= zone.radius) {
-            minDistance = distance;
-            nearestZone = zone;
+          if (distanceFromStore <= zone.radius) {
+            // Location is within this zone's radius
+            if (zone.radius < minDistance) {
+              minDistance = zone.radius;
+              nearestZone = zone;
+            }
           }
         });
 
-        if (nearestZone) {
+        // If no zone found, find the nearest one
+        if (!nearestZone) {
+          markers.forEach(({ zone }) => {
+            const distance = Math.abs(distanceFromStore - zone.radius);
+            if (distance < minDistance) {
+              minDistance = distance;
+              nearestZone = zone;
+            }
+          });
+        }
+
+        const distanceKm = (distanceFromStore / 1000).toFixed(1);
+        
+        if (nearestZone && distanceFromStore <= nearestZone.radius) {
           mapInfo.innerHTML = `
             <strong style="color: #10b981;">✓ Delivery Available</strong><br>
             Your location is in the <strong>${nearestZone.label}</strong> zone.<br>
+            Distance from store: <strong>${distanceKm} km</strong><br>
             Estimated delivery time: <strong>${nearestZone.eta}</strong>
           `;
           mapInfo.style.color = "#1a1a1a";
         } else {
           mapInfo.innerHTML = `
-            <strong style="color: #c91517;">⚠ Limited Coverage</strong><br>
-            Your location may be outside our main delivery zones.<br>
-            Please contact us for delivery options: <strong>+254 700 000 000</strong>
+            <strong style="color: #c91517;">⚠ Check Delivery Options</strong><br>
+            Your location is <strong>${distanceKm} km</strong> from our store.<br>
+            Please contact us to confirm delivery: <strong>+254 700 000 000</strong><br>
+            <small style="color: #999;">We may still be able to deliver to your area</small>
           `;
           mapInfo.style.color = "#1a1a1a";
         }
