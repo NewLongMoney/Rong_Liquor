@@ -349,9 +349,8 @@ function renderProducts() {
     });
     filteredProducts = Object.values(categoryMap);
   } else {
-    // Show only the first product in the selected category
-    const categoryProducts = drops.filter((p) => p.category === currentCategory);
-    filteredProducts = categoryProducts.length > 0 ? [categoryProducts[0]] : [];
+    // Show ALL products in the selected category
+    filteredProducts = drops.filter((p) => p.category === currentCategory);
   }
 
   if (productsTitle) {
@@ -362,6 +361,15 @@ function renderProducts() {
 
   if (productsCount) {
     productsCount.textContent = `${filteredProducts.length} ${filteredProducts.length === 1 ? 'item' : 'items'}`;
+  }
+
+  if (filteredProducts.length === 0) {
+    productsGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
+        <p style="font-size: 1.1rem;">No products found in this category.</p>
+      </div>
+    `;
+    return;
   }
 
   productsGrid.innerHTML = filteredProducts.map((product) => `
