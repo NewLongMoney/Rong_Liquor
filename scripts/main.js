@@ -6,7 +6,7 @@ let currentCategory = "all";
 let deliveryLocation = localStorage.getItem("deliveryLocation") || null;
 
 // Initialize
-document.addEventListener("DOMContentLoaded", () => {
+function init() {
   initializeAgeGate();
   initializeLocation();
   initializeCart();
@@ -16,7 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeCategoryCards();
   initializeFeaturedProducts();
   updateCartUI();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  // DOM is already loaded
+  init();
+}
 
 // Age Gate
 function initializeAgeGate() {
