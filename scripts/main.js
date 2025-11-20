@@ -47,37 +47,68 @@ function initializeAgeGate() {
   ageGate.style.display = "grid";
   ageGate.style.pointerEvents = "auto";
 
-  // Ensure buttons are clickable
-  if (confirmBtn) {
-    confirmBtn.style.pointerEvents = "auto";
-    confirmBtn.style.cursor = "pointer";
-    confirmBtn.addEventListener("click", (e) => {
+  // Function to handle age verification
+  function handleAgeConfirm(e) {
+    if (e) {
       e.preventDefault();
       e.stopPropagation();
-      localStorage.setItem("ageVerified", "true");
-      ageGate.style.display = "none";
-      document.body.classList.remove("age-gate-active");
-      document.body.style.overflow = "";
-    });
+    }
+    console.log("Age confirmed");
+    localStorage.setItem("ageVerified", "true");
+    ageGate.style.display = "none";
+    document.body.classList.remove("age-gate-active");
+    document.body.style.overflow = "";
+  }
+
+  // Function to handle age denial
+  function handleAgeDeny(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    window.location.href = "https://www.google.com";
+  }
+
+  // Remove any existing event listeners by cloning
+  if (confirmBtn) {
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    
+    newConfirmBtn.style.pointerEvents = "auto";
+    newConfirmBtn.style.cursor = "pointer";
+    newConfirmBtn.style.position = "relative";
+    newConfirmBtn.style.zIndex = "100001";
+    
+    // Add multiple event listeners to ensure it works
+    newConfirmBtn.onclick = handleAgeConfirm;
+    newConfirmBtn.addEventListener("click", handleAgeConfirm, { capture: true });
+    newConfirmBtn.addEventListener("mousedown", handleAgeConfirm, { capture: true });
   }
 
   if (denyBtn) {
-    denyBtn.style.pointerEvents = "auto";
-    denyBtn.style.cursor = "pointer";
-    denyBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      window.location.href = "https://www.google.com";
-    });
+    const newDenyBtn = denyBtn.cloneNode(true);
+    denyBtn.parentNode.replaceChild(newDenyBtn, denyBtn);
+    
+    newDenyBtn.style.pointerEvents = "auto";
+    newDenyBtn.style.cursor = "pointer";
+    newDenyBtn.style.position = "relative";
+    newDenyBtn.style.zIndex = "100001";
+    
+    // Add multiple event listeners to ensure it works
+    newDenyBtn.onclick = handleAgeDeny;
+    newDenyBtn.addEventListener("click", handleAgeDeny, { capture: true });
+    newDenyBtn.addEventListener("mousedown", handleAgeDeny, { capture: true });
   }
 
   // Prevent any interaction with page content while age gate is active
+  // But allow clicks on the age card and buttons
   ageGate.addEventListener("click", (e) => {
+    // Only prevent if clicking the background, not the card or buttons
     if (e.target === ageGate) {
-      // Prevent closing by clicking outside
+      e.preventDefault();
       e.stopPropagation();
     }
-  });
+  }, false);
 }
 
 // Location
