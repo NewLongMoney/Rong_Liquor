@@ -14,7 +14,6 @@ function init() {
   initializeProducts();
   initializeHeroSlideshow();
   initializeCategoryCards();
-  initializeFeaturedProducts();
   updateCartUI();
 }
 
@@ -126,18 +125,66 @@ function initializeLocation() {
     updateETA();
   }
 
-  locationSelector?.addEventListener("click", () => {
-    locationModal?.classList.add("active");
-    addressInput?.focus();
-  });
+  // Add click handler to location selector - use capture phase to catch all clicks
+  if (locationSelector) {
+    // Make entire selector clickable
+    locationSelector.style.cursor = 'pointer';
+    locationSelector.setAttribute('role', 'button');
+    locationSelector.setAttribute('tabindex', '0');
+    
+    const openModal = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (locationModal) {
+        locationModal.classList.add("active");
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        // Ensure map is visible when modal opens
+        const mapContainer = document.getElementById("map");
+        if (mapContainer) {
+          mapContainer.style.display = 'block';
+          // Trigger map resize after modal opens to ensure proper rendering
+          setTimeout(() => {
+            if (typeof google !== 'undefined' && google.maps && deliveryMap) {
+              google.maps.event.trigger(deliveryMap, 'resize');
+              // Re-center the map if user marker exists
+              if (window.userMarker) {
+                const bounds = new google.maps.LatLngBounds();
+                bounds.extend(new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng));
+                bounds.extend(window.userMarker.getPosition());
+                deliveryMap.fitBounds(bounds);
+              }
+            }
+          }, 300);
+        }
+        // Focus address input after a short delay to ensure modal is visible
+        setTimeout(() => {
+          addressInput?.focus();
+        }, 100);
+      }
+    };
+    
+    locationSelector.addEventListener("click", openModal, true); // Use capture phase
+    locationSelector.addEventListener("keydown", (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openModal(e);
+      }
+    });
+  }
 
   closeModal?.addEventListener("click", () => {
-    locationModal?.classList.remove("active");
+    if (locationModal) {
+      locationModal.classList.remove("active");
+      document.body.style.overflow = ''; // Restore scrolling
+    }
   });
 
   locationModal?.addEventListener("click", (e) => {
     if (e.target === locationModal) {
       locationModal.classList.remove("active");
+      document.body.style.overflow = ''; // Restore scrolling
     }
   });
 
