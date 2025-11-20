@@ -524,26 +524,42 @@ function initializeFeaturedProducts() {
 
 // Google Maps
 const STORE_LOCATION = {
-  lat: -1.2833,
-  lng: 36.8667,
-  address: "Karagita Sanduku Park, Utawala, Nairobi"
+  lat: -1.286389,
+  lng: 36.817223,
+  address: "Utawala Karagita Sanduku Park, PW5W+VGF, Eastern Bypass, Nairobi, Kenya"
+};
+
+// Kenya bounds for map restriction
+const KENYA_BOUNDS = {
+  north: 5.5,
+  south: -4.7,
+  east: 41.9,
+  west: 33.9
 };
 
 let deliveryMap = null;
 let geocoder = null;
+let autocomplete = null;
 let storeMarker = null;
+let routeLine = null;
 
 window.initMap = function() {
   const mapContainer = document.getElementById("map");
   if (!mapContainer) return;
 
-  // Initialize map
+  // Initialize map centered on Nairobi, showing Kenya
   deliveryMap = new google.maps.Map(mapContainer, {
-    zoom: 13,
-    center: STORE_LOCATION,
+    zoom: 10,
+    center: { lat: -1.2921, lng: 36.8219 }, // Nairobi center
     mapTypeControl: true,
     streetViewControl: false,
     fullscreenControl: true,
+    restriction: {
+      latLngBounds: KENYA_BOUNDS,
+      strictBounds: false
+    },
+    minZoom: 6, // Show Kenya as a whole
+    maxZoom: 18
   });
 
   // Store marker
@@ -570,9 +586,15 @@ window.initMap = function() {
         <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #c91517; font-weight: 700;">Rong Liquor Store</h3>
         <p style="margin: 0; font-size: 0.9rem; color: #666;">
           <strong>📍 Location:</strong><br>
-          Karagita Sanduku Park<br>
-          Utawala, Nairobi
+          Utawala Karagita Sanduku Park<br>
+          PW5W+VGF, Eastern Bypass<br>
+          Nairobi, Kenya
         </p>
+        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(STORE_LOCATION.address)}" 
+           target="_blank" 
+           style="display: inline-block; margin-top: 0.5rem; color: #c91517; text-decoration: none; font-size: 0.85rem;">
+          View on Google Maps →
+        </a>
       </div>
     `
   });
@@ -580,6 +602,20 @@ window.initMap = function() {
   storeMarker.addListener("click", () => {
     storeInfoWindow.open(deliveryMap, storeMarker);
   });
+
+  // Fit map to show both store and Kenya bounds
+  const kenyaBounds = new google.maps.LatLngBounds(
+    new google.maps.LatLng(KENYA_BOUNDS.south, KENYA_BOUNDS.west),
+    new google.maps.LatLng(KENYA_BOUNDS.north, KENYA_BOUNDS.east)
+  );
+  
+  // Set initial view to show Nairobi area with store
+  deliveryMap.fitBounds(
+    new google.maps.LatLngBounds(
+      new google.maps.LatLng(STORE_LOCATION.lat - 0.1, STORE_LOCATION.lng - 0.1),
+      new google.maps.LatLng(STORE_LOCATION.lat + 0.1, STORE_LOCATION.lng + 0.1)
+    )
+  );
 
   // Open store info window by default
   setTimeout(() => {
@@ -592,11 +628,149 @@ window.initMap = function() {
   const mapInfo = document.getElementById("map-info");
   const saveLocationBtn = document.getElementById("save-location");
 
+  // Initialize Google Places Autocomplete
+  if (addressInput && google.maps.places) {
+    autocomplete = new google.maps.places.Autocomplete(addressInput, {
+      componentRestrictions: { country: 'ke' }, // Restrict to Kenya
+      fields: ['geometry', 'formatted_address', 'name'],
+      bounds: new google.maps.LatLngBounds(
+        new google.maps.LatLng(KENYA_BOUNDS.south, KENYA_BOUNDS.west),
+        new google.maps.LatLng(KENYA_BOUNDS.north, KENYA_BOUNDS.east)
+      )
+    });
+
+    // Bias autocomplete to Nairobi area
+    autocomplete.setBounds(
+      new google.maps.LatLngBounds(
+        new google.maps.LatLng(-1.5, 36.5),
+        new google.maps.LatLng(-1.0, 37.2)
+      )
+    );
+
+    // Handle place selection
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      
+      if (!place.geometry) {
+        if (mapInfo) {
+          mapInfo.innerHTML = `<strong style="color: #c91517;">⚠ Could not find address</strong><br>Please try a more specific location.`;
+          mapInfo.style.color = "#1a1a1a";
+        }
+        return;
+      }
+
+      const location = place.geometry.location;
+      
+      // Remove previous user marker if exists
+      if (window.userMarker) {
+        window.userMarker.setMap(null);
+      }
+
+      // Add user location marker
+      window.userMarker = new google.maps.Marker({
+        position: location,
+        map: deliveryMap,
+        title: "Delivery Location",
+        draggable: true,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 12,
+          fillColor: "#10b981",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 3
+        }
+      });
+
+      // Update address input with formatted address
+      if (place.formatted_address) {
+        addressInput.value = place.formatted_address;
+      }
+
+      // Center map to show both store and delivery location
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend(new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng));
+      bounds.extend(location);
+      deliveryMap.fitBounds(bounds);
+      
+      // Ensure zoom is not too far out
+      if (deliveryMap.getZoom() > 15) {
+        deliveryMap.setZoom(15);
+      }
+
+      // Calculate distance and update info
+      updateLocationInfo(location, place.formatted_address || place.name);
+
+      // Handle marker drag
+      window.userMarker.addListener('dragend', () => {
+        const newLocation = window.userMarker.getPosition();
+        updateLocationInfo(newLocation, addressInput.value);
+        
+        // Reverse geocode to update address
+        geocoder.geocode({ location: newLocation }, (results, status) => {
+          if (status === "OK" && results[0]) {
+            addressInput.value = results[0].formatted_address;
+          }
+        });
+      });
+    });
+  }
+
+  function drawRouteLine(deliveryLocation) {
+    // Remove previous route line if exists
+    if (routeLine) {
+      routeLine.setMap(null);
+    }
+
+    // Draw a straight line between store and delivery location
+    routeLine = new google.maps.Polyline({
+      path: [
+        new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng),
+        deliveryLocation
+      ],
+      geodesic: true,
+      strokeColor: '#c91517',
+      strokeOpacity: 0.6,
+      strokeWeight: 3,
+      map: deliveryMap
+    });
+  }
+
+  function updateLocationInfo(location, address) {
+    // Calculate distance
+    const distance = google.maps.geometry.spherical.computeDistanceBetween(
+      location,
+      new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
+    );
+    const distanceKm = (distance / 1000).toFixed(1);
+    const eta = Math.ceil(distanceKm / 0.5) + "-" + Math.ceil(distanceKm / 0.3);
+
+    if (mapInfo) {
+      mapInfo.innerHTML = `
+        <strong style="color: #10b981;">✓ Location Found</strong><br>
+        <span style="font-size: 0.9rem;">${address || 'Selected location'}</span><br>
+        Distance from store: <strong>${distanceKm} km</strong><br>
+        Estimated delivery: <strong>${eta} minutes</strong>
+      `;
+      mapInfo.style.color = "#1a1a1a";
+    }
+    
+    // Draw route line
+    drawRouteLine(location);
+  }
+
+  // Fallback geocode function for manual entry
   function geocodeAddress() {
     const address = addressInput?.value.trim();
     if (!address) return;
 
-    geocoder.geocode({ address: address + ", Nairobi, Kenya" }, (results, status) => {
+    geocoder.geocode({ 
+      address: address + ", Kenya",
+      bounds: new google.maps.LatLngBounds(
+        new google.maps.LatLng(KENYA_BOUNDS.south, KENYA_BOUNDS.west),
+        new google.maps.LatLng(KENYA_BOUNDS.north, KENYA_BOUNDS.east)
+      )
+    }, (results, status) => {
       if (status === "OK" && results[0]) {
         const location = results[0].geometry.location;
         
@@ -610,9 +784,10 @@ window.initMap = function() {
           position: location,
           map: deliveryMap,
           title: "Delivery Location",
+          draggable: true,
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
+            scale: 12,
             fillColor: "#10b981",
             fillOpacity: 1,
             strokeColor: "#ffffff",
@@ -622,52 +797,70 @@ window.initMap = function() {
 
         // Center map on user location
         deliveryMap.setCenter(location);
-        deliveryMap.setZoom(14);
+        deliveryMap.setZoom(15);
 
         // Calculate distance
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          location,
-          new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
-        );
-        const distanceKm = (distance / 1000).toFixed(1);
-        const eta = Math.ceil(distanceKm / 0.5) + "-" + Math.ceil(distanceKm / 0.3);
-
-        if (mapInfo) {
-          mapInfo.innerHTML = `
-            <strong style="color: #10b981;">✓ Location Found</strong><br>
-            Distance from store: <strong>${distanceKm} km</strong><br>
-            Estimated delivery: <strong>${eta} minutes</strong>
-          `;
-          mapInfo.style.color = "#1a1a1a";
-        }
+        updateLocationInfo(location, results[0].formatted_address);
       } else {
         if (mapInfo) {
-          mapInfo.innerHTML = `<strong style="color: #c91517;">⚠ Could not find address</strong><br>Please try a more specific location.`;
+          mapInfo.innerHTML = `<strong style="color: #c91517;">⚠ Could not find address</strong><br>Please try a more specific location in Kenya.`;
           mapInfo.style.color = "#1a1a1a";
         }
       }
     });
   }
 
-  // Geocode on input blur
-  addressInput?.addEventListener("blur", geocodeAddress);
+  // Geocode on input blur (fallback if autocomplete doesn't work)
+  addressInput?.addEventListener("blur", () => {
+    if (!autocomplete || !autocomplete.getPlace()) {
+      geocodeAddress();
+    }
+  });
   
   // Geocode on Enter key
   addressInput?.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
-      geocodeAddress();
+      e.preventDefault();
+      if (!autocomplete || !autocomplete.getPlace()) {
+        geocodeAddress();
+      }
     }
   });
 
   // Save location button
   saveLocationBtn?.addEventListener("click", () => {
     const address = addressInput?.value.trim();
-    if (address) {
+    if (address && window.userMarker) {
+      const location = window.userMarker.getPosition();
+      const locationData = {
+        address: address,
+        lat: location.lat(),
+        lng: location.lng()
+      };
+      
       deliveryLocation = address;
       localStorage.setItem("deliveryLocation", address);
-      document.getElementById("delivery-location").textContent = address;
+      localStorage.setItem("deliveryLocationData", JSON.stringify(locationData));
+      
+      const deliveryLocationEl = document.getElementById("delivery-location");
+      if (deliveryLocationEl) {
+        deliveryLocationEl.textContent = address.length > 40 ? address.substring(0, 40) + "..." : address;
+      }
+      
       document.getElementById("location-modal")?.classList.remove("active");
       updateETA();
+    } else if (address) {
+      // Fallback if marker doesn't exist
+      deliveryLocation = address;
+      localStorage.setItem("deliveryLocation", address);
+      document.getElementById("delivery-location").textContent = address.length > 40 ? address.substring(0, 40) + "..." : address;
+      document.getElementById("location-modal")?.classList.remove("active");
+      updateETA();
+    } else {
+      if (mapInfo) {
+        mapInfo.innerHTML = `<strong style="color: #c91517;">⚠ Please select a delivery location</strong>`;
+        mapInfo.style.color = "#1a1a1a";
+      }
     }
   });
 };
