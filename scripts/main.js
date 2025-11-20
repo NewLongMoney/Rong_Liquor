@@ -38,17 +38,31 @@ function initializeAgeGate() {
   document.body.classList.add("age-gate-active");
   document.body.style.overflow = "hidden";
   ageGate.style.display = "grid";
+  ageGate.style.pointerEvents = "auto";
 
-  confirmBtn?.addEventListener("click", () => {
-    localStorage.setItem("ageVerified", "true");
-    ageGate.style.display = "none";
-    document.body.classList.remove("age-gate-active");
-    document.body.style.overflow = "";
-  });
+  // Ensure buttons are clickable
+  if (confirmBtn) {
+    confirmBtn.style.pointerEvents = "auto";
+    confirmBtn.style.cursor = "pointer";
+    confirmBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      localStorage.setItem("ageVerified", "true");
+      ageGate.style.display = "none";
+      document.body.classList.remove("age-gate-active");
+      document.body.style.overflow = "";
+    });
+  }
 
-  denyBtn?.addEventListener("click", () => {
-    window.location.href = "https://www.google.com";
-  });
+  if (denyBtn) {
+    denyBtn.style.pointerEvents = "auto";
+    denyBtn.style.cursor = "pointer";
+    denyBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      window.location.href = "https://www.google.com";
+    });
+  }
 
   // Prevent any interaction with page content while age gate is active
   ageGate.addEventListener("click", (e) => {

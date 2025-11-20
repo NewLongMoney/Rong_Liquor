@@ -153,6 +153,11 @@ a {
   place-items: center;
   z-index: 99999;
   backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.age-gate * {
+  pointer-events: auto;
 }
 
 .age-gate.active {
@@ -167,6 +172,9 @@ a {
   max-width: 420px;
   width: 90%;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 100000;
+  pointer-events: auto;
 }
 
 .gate-logo {
@@ -201,6 +209,10 @@ a {
   border: none;
   padding: 0.875rem 2rem;
   font-weight: 600;
+  pointer-events: auto;
+  cursor: pointer;
+  position: relative;
+  z-index: 100001;
 }
 
 .age-gate .btn-primary:hover {
@@ -214,6 +226,10 @@ a {
   border: none;
   padding: 0.875rem 2rem;
   font-weight: 600;
+  pointer-events: auto;
+  cursor: pointer;
+  position: relative;
+  z-index: 100001;
 }
 
 .age-gate .btn-secondary:hover {
