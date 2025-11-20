@@ -7,6 +7,19 @@
     <link rel="stylesheet" href="styles/main.css" />
   </head>
   <body>
+    <!-- Age Gate -->
+    <div id="age-gate" class="age-gate" style="display: grid;">
+      <div class="age-card">
+        <img src="assets/logo.svg" alt="Rong Liquor" class="gate-logo" />
+        <h2>Age Verification</h2>
+        <p>You must be 21 or older to access this site.</p>
+        <div class="gate-actions">
+          <button id="confirm-age" class="btn btn-primary">I am 21+</button>
+          <button id="deny-age" class="btn btn-secondary">I am under 21</button>
+        </div>
+      </div>
+    </div>
+
     <header class="site-header">
       <div class="logo-cluster">
         <img src="assets/logo.svg" alt="Rong Liquor" />
@@ -58,8 +71,75 @@
       </div>
     </main>
     <footer class="site-footer">
-      <p>Drink responsibly.</p>
+      <div class="footer-container">
+        <div class="footer-content">
+          <!-- Brand Column -->
+          <div class="footer-brand">
+            <img src="assets/logo.svg" alt="Rong Liquor" class="footer-logo" />
+            <p class="footer-tagline">Premium Liquor Delivery • Nairobi</p>
+            <p class="footer-description">Gengetone aesthetics meet ReserveBar curation. Fast delivery, authentic vibes.</p>
+            <div class="social-links">
+              <a href="https://www.instagram.com/the_rongliquor/" target="_blank" rel="noopener" class="social-link" aria-label="Instagram">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                </svg>
+              </a>
+              <a href="https://open.spotify.com/artist/10jefIr7Jj7c0dDJEqRcWK" target="_blank" rel="noopener" class="social-link" aria-label="Spotify">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Navigation Column -->
+          <div class="footer-column">
+            <h3 class="footer-heading">Navigate</h3>
+            <nav class="footer-nav">
+              <a href="index.html" class="footer-link">Home</a>
+              <a href="drops.html" class="footer-link">Drops</a>
+              <a href="vibes.html" class="footer-link">Vibes</a>
+              <a href="about.html" class="footer-link">About</a>
+              <a href="cart.html" class="footer-link">Cart</a>
+            </nav>
+          </div>
+
+          <!-- Support Column -->
+          <div class="footer-column">
+            <h3 class="footer-heading">Support</h3>
+            <nav class="footer-nav">
+              <a href="#" class="footer-link">Delivery Info</a>
+              <a href="#" class="footer-link">Contact Us</a>
+              <a href="#" class="footer-link">FAQ</a>
+              <a href="#" class="footer-link">Returns</a>
+            </nav>
+          </div>
+
+          <!-- Legal Column -->
+          <div class="footer-column">
+            <h3 class="footer-heading">Legal</h3>
+            <nav class="footer-nav">
+              <a href="#" class="footer-link">Privacy Policy</a>
+              <a href="#" class="footer-link">Terms of Service</a>
+              <a href="#" class="footer-link">Age Verification</a>
+            </nav>
+            <p class="footer-legal">Must be 21+ to purchase. Drink responsibly.</p>
+          </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+          <div class="footer-divider"></div>
+          <div class="footer-bottom-content">
+            <p class="footer-copyright">&copy; 2025 Rong Liquor. All rights reserved.</p>
+            <p class="footer-location">📍 Delivering across Nairobi • CBD • Eastlands • Westlands</p>
+          </div>
+        </div>
+      </div>
     </footer>
+    <script src="scripts/main.js" type="module"></script>
     <script type="module">
       import { drops } from "./scripts/data.js";
       const cartItemsEl = document.getElementById("cart-items");

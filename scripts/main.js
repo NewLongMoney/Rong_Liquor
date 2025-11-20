@@ -29,16 +29,33 @@ function initializeAgeGate() {
   const ageVerified = localStorage.getItem("ageVerified");
   if (ageVerified === "true") {
     ageGate.style.display = "none";
+    document.body.classList.remove("age-gate-active");
+    document.body.style.overflow = "";
     return;
   }
+
+  // Block scrolling when age gate is shown
+  document.body.classList.add("age-gate-active");
+  document.body.style.overflow = "hidden";
+  ageGate.style.display = "grid";
 
   confirmBtn?.addEventListener("click", () => {
     localStorage.setItem("ageVerified", "true");
     ageGate.style.display = "none";
+    document.body.classList.remove("age-gate-active");
+    document.body.style.overflow = "";
   });
 
   denyBtn?.addEventListener("click", () => {
     window.location.href = "https://www.google.com";
+  });
+
+  // Prevent any interaction with page content while age gate is active
+  ageGate.addEventListener("click", (e) => {
+    if (e.target === ageGate) {
+      // Prevent closing by clicking outside
+      e.stopPropagation();
+    }
   });
 }
 
