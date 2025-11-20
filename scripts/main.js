@@ -125,7 +125,10 @@ function initializeCart() {
       document.querySelector(".location-selector")?.click();
       return;
     }
-    alert(`Order placed! Total: ${getCartTotal().toLocaleString()} KES\nDelivery to: ${deliveryLocation}`);
+    const subtotal = getCartSubtotal();
+    const deliveryFee = getDeliveryFee();
+    const total = getCartTotal();
+    alert(`Order placed!\n\nSubtotal: ${subtotal.toLocaleString()} KES\nDelivery Fee: ${deliveryFee.toLocaleString()} KES\nTotal: ${total.toLocaleString()} KES\n\nDelivery to: ${deliveryLocation}`);
     cart = [];
     localStorage.setItem("cart", JSON.stringify(cart));
     updateCartUI();
@@ -168,7 +171,92 @@ function updateQuantity(productId, change) {
   }
 }
 
+// Delivery fee calculation (Uber-style pricing)
+function calculateDeliveryFee(distanceKm) {
+  if (!distanceKm || distanceKm <= 0) {
+    return 0;
+  }
+  
+  // Base delivery fee (KES)
+  const baseFee = 150;
+  
+  // Distance-based fee (KES per km after first 2km)
+  const freeDistance = 2; // First 2km included in base fee
+  const perKmRate = 25; // KES per km after free distance
+  
+  if (distanceKm <= freeDistance) {
+    return baseFee;
+  }
+  
+  const additionalKm = distanceKm - freeDistance;
+  const distanceFee = Math.ceil(additionalKm * perKmRate);
+  
+  // Maximum delivery fee cap
+  const maxFee = 500;
+  
+  return Math.min(baseFee + distanceFee, maxFee);
+}
+
+function getDeliveryFee() {
+  const locationData = localStorage.getItem("deliveryLocationData");
+  if (!locationData) return 0;
+  
+  try {
+    const data = JSON.parse(locationData);
+    if (!data.lat || !data.lng) return 0;
+    
+    // Use stored distance if available (for when map isn't loaded)
+    if (data.distanceKm) {
+      return calculateDeliveryFee(data.distanceKm);
+    }
+    
+    // Calculate distance if Google Maps is available
+    if (typeof google !== 'undefined' && google.maps && google.maps.geometry) {
+      const distance = google.maps.geometry.spherical.computeDistanceBetween(
+        new google.maps.LatLng(data.lat, data.lng),
+        new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
+      );
+      
+      if (distance) {
+        const distanceKm = distance / 1000;
+        // Store distance for future use
+        data.distanceKm = distanceKm;
+        localStorage.setItem("deliveryLocationData", JSON.stringify(data));
+        return calculateDeliveryFee(distanceKm);
+      }
+    }
+    
+    // Fallback: calculate distance using Haversine formula if Google Maps isn't loaded
+    const distanceKm = calculateHaversineDistance(
+      data.lat, data.lng,
+      STORE_LOCATION.lat, STORE_LOCATION.lng
+    );
+    return calculateDeliveryFee(distanceKm);
+  } catch (e) {
+    return 0;
+  }
+}
+
+// Haversine formula to calculate distance between two lat/lng points
+function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 function getCartTotal() {
+  const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const deliveryFee = getDeliveryFee();
+  return subtotal + deliveryFee;
+}
+
+function getCartSubtotal() {
   return cart.reduce((total, item) => total + item.price * item.quantity, 0);
 }
 
@@ -185,9 +273,29 @@ function updateCartUI() {
     cartCount.style.display = totalItems > 0 ? "flex" : "none";
   }
 
-  // Update total
+  // Update total with delivery fee breakdown
   if (cartTotal) {
-    cartTotal.textContent = `KES ${getCartTotal().toLocaleString()}`;
+    const subtotal = getCartSubtotal();
+    const deliveryFee = getDeliveryFee();
+    const total = subtotal + deliveryFee;
+    
+    if (deliveryFee > 0) {
+      cartTotal.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: right;">
+          <div style="font-size: 0.85rem; color: var(--text-muted);">
+            Subtotal: <span style="font-weight: 500;">KES ${subtotal.toLocaleString()}</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">
+            Delivery: <span style="font-weight: 500;">KES ${deliveryFee.toLocaleString()}</span>
+          </div>
+          <div style="font-size: 1.1rem; font-weight: 700; color: var(--text); margin-top: 0.25rem; border-top: 1px solid var(--border); padding-top: 0.25rem;">
+            Total: KES ${total.toLocaleString()}
+          </div>
+        </div>
+      `;
+    } else {
+      cartTotal.textContent = `KES ${total.toLocaleString()}`;
+    }
   }
 
   // Update checkout button
@@ -417,29 +525,57 @@ function initializeHeroSlideshow() {
 
   const slides = track.querySelectorAll(".slide");
   let currentSlide = 0;
+  let slideshowInterval = null;
+
+  // Ensure we have slides
+  if (slides.length === 0) {
+    console.warn("No slides found in slideshow");
+    return;
+  }
 
   // Create indicators
-  slides.forEach((_, index) => {
-    const indicator = document.createElement("button");
-    indicator.className = "indicator" + (index === 0 ? " active" : "");
-    indicator.addEventListener("click", () => goToSlide(index));
-    indicators?.appendChild(indicator);
-  });
-
-  function updateSlideshow() {
-    slides.forEach((slide, index) => {
-      slide.classList.toggle("active", index === currentSlide);
-    });
-    
-    indicators?.querySelectorAll(".indicator").forEach((ind, index) => {
-      ind.classList.toggle("active", index === currentSlide);
+  if (indicators) {
+    indicators.innerHTML = ""; // Clear any existing indicators
+    slides.forEach((_, index) => {
+      const indicator = document.createElement("button");
+      indicator.className = "indicator" + (index === 0 ? " active" : "");
+      indicator.setAttribute("aria-label", `Go to slide ${index + 1}`);
+      indicator.addEventListener("click", () => {
+        goToSlide(index);
+        resetInterval();
+      });
+      indicators.appendChild(indicator);
     });
   }
 
+  function updateSlideshow() {
+    slides.forEach((slide, index) => {
+      if (index === currentSlide) {
+        slide.classList.add("active");
+      } else {
+        slide.classList.remove("active");
+      }
+    });
+    
+    if (indicators) {
+      indicators.querySelectorAll(".indicator").forEach((ind, index) => {
+        if (index === currentSlide) {
+          ind.classList.add("active");
+        } else {
+          ind.classList.remove("active");
+        }
+      });
+    }
+  }
+
   function goToSlide(index) {
-    currentSlide = index;
-    if (currentSlide < 0) currentSlide = slides.length - 1;
-    if (currentSlide >= slides.length) currentSlide = 0;
+    if (index < 0) {
+      currentSlide = slides.length - 1;
+    } else if (index >= slides.length) {
+      currentSlide = 0;
+    } else {
+      currentSlide = index;
+    }
     updateSlideshow();
   }
 
@@ -453,11 +589,46 @@ function initializeHeroSlideshow() {
     updateSlideshow();
   }
 
-  prevBtn?.addEventListener("click", prevSlide);
-  nextBtn?.addEventListener("click", nextSlide);
+  function resetInterval() {
+    if (slideshowInterval) {
+      clearInterval(slideshowInterval);
+    }
+    slideshowInterval = setInterval(nextSlide, 5000);
+  }
 
-  // Auto-play slideshow - seamless loop
-  setInterval(nextSlide, 5000);
+  // Initialize first slide
+  updateSlideshow();
+
+  // Event listeners
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      prevSlide();
+      resetInterval();
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      nextSlide();
+      resetInterval();
+    });
+  }
+
+  // Auto-play slideshow - seamless loop from image 1 to 4
+  resetInterval();
+
+  // Pause on hover (optional enhancement)
+  if (track) {
+    track.addEventListener("mouseenter", () => {
+      if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+      }
+    });
+    
+    track.addEventListener("mouseleave", () => {
+      resetInterval();
+    });
+  }
 }
 
 // Category Cards Click Handlers
@@ -545,7 +716,35 @@ let routeLine = null;
 
 window.initMap = function() {
   const mapContainer = document.getElementById("map");
+  const mapInfo = document.getElementById("map-info");
+  
   if (!mapContainer) return;
+  
+  // Check if Google Maps is loaded
+  if (typeof google === 'undefined' || !google.maps) {
+    if (mapInfo) {
+      mapContainer.style.display = 'none';
+      mapInfo.innerHTML = `
+        <div style="padding: 1.5rem; text-align: center; background: #fff; border-radius: 8px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+          <strong style="color: #c91517; display: block; margin-bottom: 0.5rem; font-size: 1.1rem;">Oops! Something went wrong.</strong>
+          <p style="color: #666; font-size: 0.9rem; margin: 0;">This page didn't load Google Maps correctly. See the JavaScript console for technical details.</p>
+        </div>
+      `;
+      mapInfo.style.display = 'block';
+    }
+    return;
+  }
+  
+  // Ensure map container is visible when map loads successfully
+  mapContainer.style.display = 'block';
+  
+  // Clear timeout if it exists
+  if (window.mapLoadTimeout) {
+    clearTimeout(window.mapLoadTimeout);
+    window.mapLoadTimeout = null;
+  }
+  window.deliveryMapInitialized = true;
 
   // Initialize map centered on Nairobi, showing Kenya
   deliveryMap = new google.maps.Map(mapContainer, {
@@ -742,21 +941,65 @@ window.initMap = function() {
       location,
       new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
     );
-    const distanceKm = (distance / 1000).toFixed(1);
+    const distanceKm = parseFloat((distance / 1000).toFixed(1));
     const eta = Math.ceil(distanceKm / 0.5) + "-" + Math.ceil(distanceKm / 0.3);
+    
+    // Calculate delivery fee
+    const deliveryFee = calculateDeliveryFee(distanceKm);
+    
+    // Update stored location data with distance
+    const existingData = localStorage.getItem("deliveryLocationData");
+    if (existingData) {
+      try {
+        const data = JSON.parse(existingData);
+        data.distanceKm = distanceKm;
+        localStorage.setItem("deliveryLocationData", JSON.stringify(data));
+      } catch (e) {
+        // Ignore errors
+      }
+    }
 
     if (mapInfo) {
       mapInfo.innerHTML = `
-        <strong style="color: #10b981;">✓ Location Found</strong><br>
-        <span style="font-size: 0.9rem;">${address || 'Selected location'}</span><br>
-        Distance from store: <strong>${distanceKm} km</strong><br>
-        Estimated delivery: <strong>${eta} minutes</strong>
+        <div style="padding: 0.75rem; background: #f0f9ff; border-left: 3px solid #10b981; border-radius: 4px;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.2rem;">✓</span>
+            <strong style="color: #10b981; font-size: 1rem;">Location Found</strong>
+          </div>
+          <div style="font-size: 0.85rem; color: #1a1a1a; margin-bottom: 0.5rem; line-height: 1.4;">
+            ${address || 'Selected location'}
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e0e0e0;">
+            <div>
+              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Distance</div>
+              <div style="font-size: 0.95rem; font-weight: 600; color: #1a1a1a;">${distanceKm.toFixed(1)} km</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">ETA</div>
+              <div style="font-size: 0.95rem; font-weight: 600; color: #1a1a1a;">${eta} min</div>
+            </div>
+          </div>
+          <div style="background: #fff; padding: 0.75rem; border-radius: 4px; border: 1px solid #e0e0e0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Delivery Fee</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: #c91517;">KES ${deliveryFee.toLocaleString()}</div>
+              </div>
+              <div style="font-size: 0.7rem; color: #666; text-align: right;">
+                ${distanceKm <= 2 ? 'Base fee' : `Base + ${(distanceKm - 2).toFixed(1)}km`}
+              </div>
+            </div>
+          </div>
+        </div>
       `;
       mapInfo.style.color = "#1a1a1a";
     }
     
     // Draw route line
     drawRouteLine(location);
+    
+    // Update cart UI to reflect new delivery fee
+    updateCartUI();
   }
 
   // Fallback geocode function for manual entry
@@ -832,10 +1075,27 @@ window.initMap = function() {
     const address = addressInput?.value.trim();
     if (address && window.userMarker) {
       const location = window.userMarker.getPosition();
+      // Calculate distance and store it (if Google Maps is available)
+      let distanceKm = null;
+      if (google.maps && google.maps.geometry) {
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+          location,
+          new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
+        );
+        distanceKm = distance / 1000;
+      } else {
+        // Fallback to Haversine formula
+        distanceKm = calculateHaversineDistance(
+          location.lat(), location.lng(),
+          STORE_LOCATION.lat, STORE_LOCATION.lng
+        );
+      }
+      
       const locationData = {
         address: address,
         lat: location.lat(),
-        lng: location.lng()
+        lng: location.lng(),
+        distanceKm: distanceKm
       };
       
       deliveryLocation = address;
@@ -849,13 +1109,43 @@ window.initMap = function() {
       
       document.getElementById("location-modal")?.classList.remove("active");
       updateETA();
+      updateCartUI(); // Update cart to show delivery fee
     } else if (address) {
-      // Fallback if marker doesn't exist
-      deliveryLocation = address;
-      localStorage.setItem("deliveryLocation", address);
-      document.getElementById("delivery-location").textContent = address.length > 40 ? address.substring(0, 40) + "..." : address;
-      document.getElementById("location-modal")?.classList.remove("active");
-      updateETA();
+      // Fallback if marker doesn't exist - try to geocode
+      geocoder.geocode({ 
+        address: address + ", Kenya",
+        bounds: new google.maps.LatLngBounds(
+          new google.maps.LatLng(KENYA_BOUNDS.south, KENYA_BOUNDS.west),
+          new google.maps.LatLng(KENYA_BOUNDS.north, KENYA_BOUNDS.east)
+        )
+      }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          const location = results[0].geometry.location;
+          // Calculate distance
+          const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            location,
+            new google.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng)
+          );
+          const distanceKm = distance / 1000;
+          
+          const locationData = {
+            address: address,
+            lat: location.lat(),
+            lng: location.lng(),
+            distanceKm: distanceKm
+          };
+          localStorage.setItem("deliveryLocationData", JSON.stringify(locationData));
+        }
+        deliveryLocation = address;
+        localStorage.setItem("deliveryLocation", address);
+        const deliveryLocationEl = document.getElementById("delivery-location");
+        if (deliveryLocationEl) {
+          deliveryLocationEl.textContent = address.length > 40 ? address.substring(0, 40) + "..." : address;
+        }
+        document.getElementById("location-modal")?.classList.remove("active");
+        updateETA();
+        updateCartUI(); // Update cart to show delivery fee
+      });
     } else {
       if (mapInfo) {
         mapInfo.innerHTML = `<strong style="color: #c91517;">⚠ Please select a delivery location</strong>`;
