@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeProducts();
   initializeHeroSlideshow();
   initializeCategoryCards();
+  initializeFeaturedProducts();
   updateCartUI();
 });
 
@@ -472,6 +473,45 @@ function initializeCategoryCards() {
       }
     });
   });
+}
+
+// Featured Products Inventory
+function initializeFeaturedProducts() {
+  const featuredGrid = document.getElementById('featured-products-grid');
+  if (!featuredGrid) return;
+
+  // Get all Kenyan products (one per category)
+  const kenyanProducts = [];
+  const categoryMap = {};
+  
+  drops.forEach((product) => {
+    if (product.origin === "Kenya" && !categoryMap[product.category]) {
+      categoryMap[product.category] = product;
+      kenyanProducts.push(product);
+    }
+  });
+
+  // Render featured products
+  featuredGrid.innerHTML = kenyanProducts.map((product) => `
+    <div class="product-card">
+      <div class="product-image">
+        ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ""}
+        <img src="${product.image}" alt="${product.name}" loading="lazy" />
+      </div>
+      <div class="product-info">
+        <div class="product-name">${product.name}</div>
+        <div class="product-details">${product.size} • ${product.origin || "International"}</div>
+        <div class="product-footer">
+          <div class="product-price">KES ${product.price.toLocaleString()}</div>
+          <button class="add-to-cart" onclick="addProductToCart(${product.id})">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join("");
 }
 
 // Google Maps
