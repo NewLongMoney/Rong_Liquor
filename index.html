@@ -432,15 +432,67 @@
           </button>
         </div>
         <div class="modal-body">
-          <input 
-            type="text" 
-            id="address-input" 
-            placeholder="Search for your delivery location in Kenya..."
-            class="address-input"
-            autocomplete="off"
-          />
-          <div id="map" class="delivery-map"></div>
-          <div id="map-info" class="map-info"></div>
+          <label for="address-input" class="input-label">Where should we pull up?</label>
+          <div class="address-input-row">
+            <input 
+              type="text" 
+              id="address-input" 
+              placeholder="Try “Ikigai Westlands” or drop a pin anywhere in Nairobi"
+              class="address-input"
+              autocomplete="off"
+            />
+            <span class="input-hint">Press enter to pin</span>
+          </div>
+
+          <div class="map-support">
+            <div class="map-copy">
+              <p class="map-copy-eyebrow">Delivery heat map</p>
+              <h3>Show us the vibes, we’ll handle the drop.</h3>
+              <p>Search for your address or drag the pin to share your exact drop-off. We calculate ETA + costs instantly.</p>
+              <div class="map-badges">
+                <span class="map-badge">CBD & Kilimani</span>
+                <span class="map-badge">Westlands</span>
+                <span class="map-badge">Karen</span>
+              </div>
+              <ul class="map-steps">
+                <li>Pin or search for any neighborhood across Nairobi.</li>
+                <li>Drag the marker if you need alleyway accuracy.</li>
+                <li>Tap “Save Location” to lock in ETA + delivery fee.</li>
+              </ul>
+            </div>
+            <div class="map-legend">
+              <div class="legend-item">
+                <span class="legend-label">Avg ETA</span>
+                <strong id="modal-eta">30-45 min</strong>
+                <small>Varies with traffic</small>
+              </div>
+              <div class="legend-item">
+                <span class="legend-label">Coverage</span>
+                <div class="legend-coverage">
+                  <span class="coverage-dot online"></span>
+                  <span>Riders live on the grid</span>
+                </div>
+                <small>CBD • Eastlands • Westlands • Karen</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="map-shell">
+            <div class="map-glow"></div>
+            <div id="map" class="delivery-map"></div>
+            <div class="map-status-chips">
+              <span class="map-status-chip">
+                <span class="chip-dot online"></span>
+                Riders live • 12
+              </span>
+              <span class="map-status-chip">
+                <span class="chip-dot surge"></span>
+                Surge-free zones
+              </span>
+            </div>
+          </div>
+          <div id="map-info" class="map-info" role="status" aria-live="polite"></div>
+
           <button class="btn btn-primary btn-block" id="save-location">Save Location</button>
         </div>
       </div>
