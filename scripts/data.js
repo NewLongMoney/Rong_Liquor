@@ -145,6 +145,16 @@ export const drops = [
   { id: 60, name: "Laphroaig 10 Year Old", category: "whiskey", price: 6800, size: "750ml", origin: "Scotland", badge: "Premium", image: getImageByCategory("whiskey", 0) },
   { id: 61, name: "Chivas Regal 12 Year Old", category: "whiskey", price: 5200, size: "750ml", origin: "Scotland", badge: "Premium", image: getImageByCategory("whiskey", 1) },
   { id: 62, name: "Crown Royal", category: "whiskey", price: 4800, size: "750ml", origin: "Canada", badge: "Premium", image: getImageByCategory("whiskey", 2) },
+  
+  // Kenyan Products - One per category (commonly available in Kenya)
+  { id: 63, name: "Ballantine's Finest Whisky", category: "whiskey", price: 3200, size: "750ml", origin: "Kenya", badge: "Popular", image: "https://www.thewhiskyexchange.com/content/images/products/1000x1000/ballantines-finest-750ml.jpg" },
+  { id: 64, name: "Jose Cuervo Especial Gold", category: "tequila", price: 3200, size: "750ml", origin: "Kenya", badge: "Popular", image: "https://www.totalwine.com/dynamic/490x/media/sys_master/twmmedia/h00/hb4/11931516993566.png" },
+  { id: 65, name: "Rémy Martin VSOP Cognac", category: "cognac", price: 7200, size: "750ml", origin: "Kenya", badge: "Premium", image: "https://www.totalwine.com/dynamic/490x/media/sys_master/twmmedia/h8a/hf5/11931517001758.png" },
+  { id: 66, name: "KWV Pinotage", category: "wine-red", price: 1600, size: "750ml", origin: "Kenya", badge: "Popular", image: "https://www.kwv.co.za/wp-content/uploads/2020/06/KWV-Pinotage-750ml.jpg" },
+  { id: 67, name: "KWV Chardonnay", category: "wine-white", price: 1600, size: "750ml", origin: "Kenya", badge: "Popular", image: "https://www.kwv.co.za/wp-content/uploads/2020/06/KWV-Chardonnay-750ml.jpg" },
+  { id: 68, name: "KWV Rosé", category: "wine-rose", price: 1600, size: "750ml", origin: "Kenya", badge: "Popular", image: "https://www.kwv.co.za/wp-content/uploads/2020/06/KWV-Rose-750ml.jpg" },
+  { id: 69, name: "Asti Spumante", category: "champagne", price: 3200, size: "750ml", origin: "Kenya", badge: "Popular", image: "https://www.totalwine.com/dynamic/490x/media/sys_master/twmmedia/hb3/h2f/11931517001758.png" },
+  { id: 70, name: "Baileys Irish Cream", category: "liqueur", price: 3200, size: "750ml", origin: "Kenya", badge: "Popular", image: "https://www.totalwine.com/dynamic/490x/media/sys_master/twmmedia/h5f/hc4/11931516993566.png" },
 ];
 
 // Category mapping for filters
