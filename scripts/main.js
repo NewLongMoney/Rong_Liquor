@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeCategories();
   initializeProducts();
   initializeHeroSlideshow();
+  initializeCategoryCards();
   updateCartUI();
 });
 
@@ -446,8 +447,31 @@ function initializeHeroSlideshow() {
   prevBtn?.addEventListener("click", prevSlide);
   nextBtn?.addEventListener("click", nextSlide);
 
-  // Auto-play slideshow
+  // Auto-play slideshow - seamless loop
   setInterval(nextSlide, 5000);
+}
+
+// Category Cards Click Handlers
+function initializeCategoryCards() {
+  const categoryCards = document.querySelectorAll('.category-card');
+  categoryCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const category = card.dataset.category;
+      if (category) {
+        // Update filter and scroll to products
+        currentCategory = category;
+        const filterChips = document.querySelectorAll('.filter-chip');
+        filterChips.forEach((chip) => {
+          chip.classList.remove('active');
+          if (chip.dataset.filter === category) {
+            chip.classList.add('active');
+          }
+        });
+        renderProducts();
+        document.querySelector('.products-section')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
 }
 
 // Google Maps
