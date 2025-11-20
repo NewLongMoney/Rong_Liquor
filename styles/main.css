@@ -426,12 +426,14 @@ a {
   overflow: hidden;
   z-index: 1;
   pointer-events: none;
+  visibility: hidden;
 }
 
 .slide.active {
   opacity: 1;
   z-index: 2;
   pointer-events: auto;
+  visibility: visible;
 }
 
 .slide img {

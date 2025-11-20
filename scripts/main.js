@@ -637,7 +637,10 @@ function initializeHeroSlideshow() {
   const prevBtn = document.getElementById("prev-hero-slide");
   const nextBtn = document.getElementById("next-hero-slide");
   
-  if (!track) return;
+  if (!track) {
+    console.warn("Hero slideshow track not found");
+    return;
+  }
 
   const slides = track.querySelectorAll(".slide");
   let currentSlide = 0;
@@ -648,6 +651,14 @@ function initializeHeroSlideshow() {
     console.warn("No slides found in slideshow");
     return;
   }
+
+  // Ensure first slide is active initially and visible
+  slides.forEach((slide, index) => {
+    slide.classList.remove("active");
+    if (index === 0) {
+      slide.classList.add("active");
+    }
+  });
 
   // Create indicators
   if (indicators) {
@@ -665,23 +676,26 @@ function initializeHeroSlideshow() {
   }
 
   function updateSlideshow() {
-    slides.forEach((slide, index) => {
-      if (index === currentSlide) {
-        slide.classList.add("active");
-      } else {
-        slide.classList.remove("active");
-      }
-    });
-    
-    if (indicators) {
-      indicators.querySelectorAll(".indicator").forEach((ind, index) => {
+    // Use requestAnimationFrame for smoother transitions
+    requestAnimationFrame(() => {
+      slides.forEach((slide, index) => {
         if (index === currentSlide) {
-          ind.classList.add("active");
+          slide.classList.add("active");
         } else {
-          ind.classList.remove("active");
+          slide.classList.remove("active");
         }
       });
-    }
+      
+      if (indicators) {
+        indicators.querySelectorAll(".indicator").forEach((ind, index) => {
+          if (index === currentSlide) {
+            ind.classList.add("active");
+          } else {
+            ind.classList.remove("active");
+          }
+        });
+      }
+    });
   }
 
   function goToSlide(index) {
@@ -731,20 +745,43 @@ function initializeHeroSlideshow() {
   }
 
   // Auto-play slideshow - seamless loop from image 1 to 4
-  resetInterval();
+  // Start the slideshow after a delay to ensure everything is ready
+  const startSlideshow = () => {
+    if (!slideshowInterval) {
+      resetInterval();
+    }
+  };
+  
+  // Try multiple approaches to ensure slideshow starts
+  if (document.readyState === 'complete') {
+    // Page already loaded
+    setTimeout(startSlideshow, 500);
+  } else {
+    // Wait for page load
+    window.addEventListener('load', () => {
+      setTimeout(startSlideshow, 500);
+    }, { once: true });
+    // Also have a fallback timeout
+    setTimeout(startSlideshow, 1500);
+  }
 
   // Pause on hover (optional enhancement)
-  if (track) {
-    track.addEventListener("mouseenter", () => {
+  const slideshowContainer = track.closest('.slideshow-container');
+  if (slideshowContainer) {
+    slideshowContainer.addEventListener("mouseenter", () => {
       if (slideshowInterval) {
         clearInterval(slideshowInterval);
+        slideshowInterval = null;
       }
     });
     
-    track.addEventListener("mouseleave", () => {
+    slideshowContainer.addEventListener("mouseleave", () => {
       resetInterval();
     });
   }
+
+  // Make slideshow accessible
+  console.log(`Hero slideshow initialized with ${slides.length} slides`);
 }
 
 // Category Cards Click Handlers
