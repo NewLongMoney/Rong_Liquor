@@ -15,8 +15,8 @@
         <h2>Age Verification</h2>
         <p>You must be 21 or older to access this site.</p>
         <div class="gate-actions">
-          <button id="confirm-age" class="btn btn-primary">I am 21+</button>
-          <button id="deny-age" class="btn btn-secondary">I am under 21</button>
+          <button id="confirm-age" class="btn btn-primary" onclick="localStorage.setItem('ageVerified', 'true'); document.getElementById('age-gate').style.display='none'; document.body.style.overflow=''; document.body.classList.remove('age-gate-active');">I am 21+</button>
+          <button id="deny-age" class="btn btn-secondary" onclick="window.location.href='https://www.google.com'">I am under 21</button>
         </div>
       </div>
     </div>
